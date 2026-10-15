@@ -1,10 +1,19 @@
+<div align="center">
+
 # EliteReplay
 
-**[Paper (arXiv)](https://arxiv.org/abs/ARXIV_ID) · [Model (Hugging Face)](https://huggingface.co/HF_ORG/EliteReplay-BIRD) · [Training guide](docs/training.md) · [Evaluation guide](docs/evaluation.md)**
+### Preserving Diverse Solutions in RL Post-Training via Quality-Diversity Search
 
-*The paper and model links are placeholders and will be updated when available.*
+<a href="https://arxiv.org/abs/ARXIV_ID"><img src="https://img.shields.io/badge/Paper-arXiv-B31B1B?style=for-the-badge" alt="Paper on arXiv (coming soon)"></a>
+<a href="https://huggingface.co/HF_ORG/EliteReplay-BIRD"><img src="https://img.shields.io/badge/Weights-Hugging_Face-FFD21E?style=for-the-badge" alt="Model weights on Hugging Face (coming soon)"></a>
+<a href="https://github.com/skai-research/EliteReplay"><img src="https://img.shields.io/badge/Code-GitHub-24292F?style=for-the-badge" alt="Code on GitHub"></a>
+<a href="docs/training.md"><img src="https://img.shields.io/badge/Docs-Getting_Started-2563EB?style=for-the-badge" alt="Getting started"></a>
 
-Official code and artifacts for **EliteReplay: Preserving Diverse Solutions in RL Post-Training via Quality-Diversity Search**.
+*Paper and model links are placeholders; both will be updated when available.*
+
+</div>
+
+Official implementation and artifacts for **EliteReplay**.
 
 EliteReplay preserves diverse solutions during reinforcement learning by combining GRPO with supervised replay from a quality-diversity archive. A frozen base model builds the archive through strategy-guided search, and execution verification keeps correct SQL solutions for replay.
 
@@ -20,7 +29,7 @@ This project provides the archive builder, the released BIRD archive, EliteRepla
 | **SQL evaluation** | Resumable generation and execution checking on BIRD and Spider | [Evaluation code](src/evorl/evaluation/) · [Guide](docs/evaluation.md#generate-and-verify-sql) |
 | **Diversity metrics** | U@k, effective diversity, strategy retention, pass@k, and bootstrap intervals | [Metric implementation](src/evorl/evaluation/diversity.py) · [Definitions](docs/evaluation.md#definitions-and-protocols) |
 
-## Get started
+## Installation
 
 Clone the repository and install the Python package:
 
@@ -32,27 +41,64 @@ source .venv/bin/activate
 pip install -e '.[test,data]'
 ```
 
-This installation supports CPU analysis and data tools. GPU training and generation use the environment described in the [training guide](docs/training.md#1-runtime).
+This installs the CPU analysis and data tools. For training and SQL generation, use the GPU environment below on your training machine:
 
-### Build or use an archive
+```bash
+docker build -f containers/Dockerfile -t elitereplay:runtime .
+docker run --gpus all --ipc=host --shm-size=32g -it \
+  -v "$PWD":/workspace -w /workspace elitereplay:runtime
+```
+
+Inside the container, install the project and its training integration:
+
+```bash
+pip install -e '.[test,data]'
+python scripts/baselines/setup_runtime.py --install
+python scripts/baselines/fetch_upstream.py --clone
+python scripts/baselines/setup_kernels.py --install
+```
+
+The default training configuration uses **4 × A100 80 GB GPUs**, split between two training GPUs and two rollout GPUs. The environment uses Python 3.12, PyTorch 2.11, CUDA 13.0, and vLLM 0.20.2. See [runtime setup](docs/training.md#1-runtime) for dependency and kernel-build details.
+
+## Training on BIRD
+
+### 1. Prepare the data
+
+Download the base model and question data:
+
+```bash
+python scripts/fetch_assets.py --models
+```
+
+Place the official BIRD training databases at `external/bird-data/train_databases/<db_id>/<db_id>.sqlite`, then prepare the training split:
+
+```bash
+python scripts/baselines/prepare_data.py --config experiments/baselines/data/bird.yaml
+```
+
+This prepares 5,000 training questions, a 1,000-question archive subset, and 668 internal validation questions. See [data setup](docs/training.md#2-data-and-base-model) for download and directory details.
+
+### 2. Choose an archive
 
 The [archive builder](src/evorl/EliteReplay/) samples initial SQL candidates, selects target strategies, and mutates verified parents. Each verified candidate enters the cell for the strategy and structure it actually uses. The final export selects examples across questions and occupied cells for replay.
 
-After [setting up the runtime and BIRD data](docs/training.md), choose one of these paths:
+Use the released archive to start training:
 
 ```bash
-# Use the released archive.
 python scripts/import_elite_archive.py --config configs/elitereplay.yaml
-
-# Or build a new archive with a configured labeler and a separate output root.
-python scripts/baselines/run.py --config configs/elitereplay.yaml prepare
 ```
 
 The released files include the [full archive](elite_archive/map_elites_archive.json), [replay examples](elite_archive/archive.jsonl), and [strategy taxonomy](elite_archive/taxonomy.json). Fresh search uses eight initial samples followed by eight rounds of eight mutations per question. See [archive setup](docs/training.md#3-choose-an-archive) for labeler configuration and export options.
 
-### Train with EliteReplay
+To build your own archive, configure a labeler and choose a separate output root as described in [archive setup](docs/training.md#rebuild-the-archive), then run:
 
-Training uses veRL and Trinity-RFT for policy optimization and supervised replay, with vLLM for rollout generation. The default hardware layout uses four A100 80 GB GPUs: two for training and two for generation.
+```bash
+python scripts/baselines/run.py --config configs/elitereplay.yaml prepare
+```
+
+### 3. Launch training
+
+Training uses veRL and Trinity-RFT for policy optimization and supervised replay, with vLLM for rollout generation.
 
 Once the runtime, data, and archive are ready:
 
@@ -67,7 +113,9 @@ Edit [the EliteReplay config](configs/elitereplay.yaml) to set training paramete
 
 The [runtime integration](vendor/runtime/) includes complete modified Trinity/veRL source files, installed over pinned upstream versions. See the [training guide](docs/training.md) for environment setup, data preparation, checkpointing, and model export.
 
-### Evaluate SQL models
+## Evaluation
+
+### BIRD and Spider
 
 The evaluator generates SQL and checks execution results on BIRD and Spider. Set the dataset and model paths in the [evaluation configs](configs/evaluation/), then run:
 
@@ -78,7 +126,7 @@ python scripts/evaluation/run.py --config configs/evaluation/bird.yaml --model e
 
 Use `spider.yaml` for Spider. Generation and verification are resumable; failed and truncated attempts remain in the sample pool. The [evaluation guide](docs/evaluation.md) covers dataset setup, model exports, and rollout formats.
 
-### Measure solution diversity
+### Diversity metrics
 
 The metric CLI takes scored SQL samples and reports pass@k, U@k, effective diversity, and strategy retention. Try it on the small synthetic example:
 
@@ -94,11 +142,22 @@ elitereplay-metrics bird_samples.jsonl --output bird_metrics.json
 
 The CLI computes all metrics from the same input samples. Descriptor choices and bootstrap settings are configurable; see [metric definitions](docs/evaluation.md#definitions-and-protocols). Correctness labels come from the SQL evaluator, not the metric CLI.
 
-## Development and experiment notes
+## Documentation and support
 
-Run the tests manually with `pytest -q`. The internal Python namespace is `evorl`; historical `qd_chord` identifiers refer to EliteReplay.
+- [Training guide](docs/training.md): environment, data, archive construction, training, and checkpoint export.
+- [Evaluation guide](docs/evaluation.md): SQL verification, rollout conversion, metrics, and bootstrap intervals.
+- [Experiment notes](docs/reproducibility.md): configuration history, archive provenance, and analysis protocols.
+- [Validation notes](docs/validation.md): checks performed for this release.
 
-[Experiment notes](docs/reproducibility.md) document configuration history, archive provenance, and saved analysis protocols. [Validation notes](docs/validation.md) describe the checks performed for this release. Model weights will be published separately on Hugging Face.
+For questions or bugs, please [open an issue](https://github.com/skai-research/EliteReplay/issues). To run the tests locally, use `pytest -q`.
+
+## Acknowledgements
+
+EliteReplay builds on [veRL](https://github.com/verl-project/verl), [Trinity-RFT](https://github.com/agentscope-ai/Trinity-RFT), and [vLLM](https://github.com/vllm-project/vllm). We thank their contributors and the authors of the baseline implementations included in this project. Source attribution and licenses are listed in [third-party notices](THIRD_PARTY_NOTICES.md).
+
+## Citation
+
+The paper link and BibTeX entry will be added when the arXiv version is available.
 
 ## License
 
