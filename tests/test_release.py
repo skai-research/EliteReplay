@@ -7,15 +7,15 @@ import subprocess
 import shutil
 
 import pytest
-from elitereplay.baselines.config import load, trinity_config
+from elitereplay.training.config import load, trinity_config
 from elitereplay.evaluation.diversity import evaluate, no_hit
-from elitereplay.analysis.sql_ast_modes import bound_alias_ast_key
+from elitereplay.evaluation.descriptors.sql_ast_modes import bound_alias_ast_key
 
 ROOT = Path(__file__).resolve().parents[1]
 
 
 def test_manuscript_and_historical_counters_are_explicit():
-    c = load(ROOT / 'configs/elitereplay.yaml')
+    c = load(ROOT / 'configs/training/elitereplay.yaml')
     t = trinity_config(c)
     assert t['buffer']['total_steps'] == 100
     assert c['training']['prompts_per_iteration'] == 128
@@ -25,16 +25,16 @@ def test_manuscript_and_historical_counters_are_explicit():
     historical = load(ROOT / 'configs/historical/elitereplay_schedule.yaml')
     assert historical['training']['rollout_iterations'] == 200
     assert historical['training']['prompts_per_optimizer_update'] == 64
-    assert (ROOT / 'plugins/elitereplay_trinity.py').is_file()
+    assert (ROOT / 'src/elitereplay/integrations/workflow.py').is_file()
 
 
-@pytest.mark.parametrize('file', sorted((ROOT/'configs').glob('*.yaml')))
+@pytest.mark.parametrize('file', sorted((ROOT/'configs/training').glob('*.yaml')))
 def test_all_training_configs_compile(file):
     trinity_config(load(file))
 
 
 def test_released_overlay_hashes():
-    lock = json.loads((ROOT/'experiments/baselines/runtime/runtime.lock.json').read_text())
+    lock = json.loads((ROOT/'runtime/locks/runtime.lock.json').read_text())
     for record in lock['repositories']:
         assert (ROOT/record['overlay']/'LICENSE').is_file()
         for name, hashes in record['files'].items():
@@ -69,7 +69,7 @@ def test_invalid_metric_inputs_and_empty_retention():
 
 @pytest.mark.skipif(shutil.which("git") is None, reason="Git required for installer fixture")
 def test_runtime_overlay_preserves_local_edits(tmp_path):
-    spec = importlib.util.spec_from_file_location('runtime_setup', ROOT/'scripts/baselines/setup_runtime.py')
+    spec = importlib.util.spec_from_file_location('runtime_setup', ROOT/'scripts/setup/runtime.py')
     module = importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
     repo = tmp_path/'upstream';repo.mkdir()
     subprocess.run(['git','init','-q',str(repo)],check=True)

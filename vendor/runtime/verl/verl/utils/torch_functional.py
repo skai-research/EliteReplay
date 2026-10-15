@@ -97,7 +97,7 @@ def logprobs_from_logits(logits, labels, inplace_backward=True):
     elif NPU_CROSS_ENTROPY_LOSS_AVAILABLE:
         output = logprobs_from_logits_torch_npu(logits, labels)
     else:
-        from elitereplay.baselines.logprobs import chunked_logprobs
+        from elitereplay.training.logprobs import chunked_logprobs
         output = chunked_logprobs(logits, labels)
     return output
 

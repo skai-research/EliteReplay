@@ -1,8 +1,8 @@
 # Complete runtime overlays
 
 These are complete modified upstream files, not independent replacement packages.
-`scripts/baselines/setup_runtime.py --install` clones the exact commits listed in
-`experiments/baselines/runtime/runtime.lock.json`, verifies original hashes, and
+`scripts/setup/runtime.py --install` clones the exact commits listed in
+`runtime/locks/runtime.lock.json`, verifies original hashes, and
 copies these files into the checkouts. Run without `--install` to verify them.
 Local edits and changed upstream revisions are rejected.
 
@@ -18,7 +18,7 @@ launch-time transformations: Qwen3.5/vLLM compatibility, mixed-source loss field
 optimizer minibatch control, raw log probabilities and truncation propagation,
 reference-policy handling, memory-bounded logits, complete rollout-batch checks,
 and error propagation. The actual EliteReplay objective and replay sampler live
-in `src/elitereplay/baselines`; the overlays support their framework integration.
+in `src/elitereplay/training`; the overlays support their framework integration.
 
 The run bundle copies these already reviewed sources. It does not use
 `git apply` or text substitutions at training launch. This keeps the upstream

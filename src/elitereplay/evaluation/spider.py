@@ -7,8 +7,8 @@ import sys
 
 from .config import path, sha256
 from .data import question_key, reference
-from elitereplay.EliteReplay.bird import parse_bird_sql_strict
-from elitereplay.EliteReplay.domain import DomainInfrastructureError, VerificationResult
+from elitereplay.archive.bird import parse_bird_sql_strict
+from elitereplay.archive.domain import DomainInfrastructureError, VerificationResult
 
 DPH_SOURCE_SHA = 'fd8e1cfebc327b5d3ccb5b31216e25747fac5cb535b416ff4a19954419f34b46'
 SCORER_SHA = '6bdc73aa82634867fee3ca80a26c92768bab0e171d803144702bd1a96f1bf1e5'

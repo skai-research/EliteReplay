@@ -1,9 +1,9 @@
 import pytest
 torch = pytest.importorskip("torch")
 from types import SimpleNamespace
-from elitereplay.baselines import grpo, maxrl, objective
-from elitereplay.baselines.batching import arrange
-from elitereplay.baselines.config import METHODS
+from elitereplay.training.objectives import grpo, maxrl, objective
+from elitereplay.training.batching import arrange
+from elitereplay.training.config import METHODS
 
 def test_maxrl_weights_hard_groups_more_than_grpo():
     r = [1.] + [0.] * 7

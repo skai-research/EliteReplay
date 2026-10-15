@@ -295,7 +295,7 @@ class VERLTrainer(TrainEngineWrapper):
         hf_config = transformers.AutoConfig.from_pretrained(
             local_path, trust_remote_code=trust_remote_code
         )
-        from elitereplay.baselines.kernels import placeholder_model_kernels
+        from elitereplay.training.kernels import placeholder_model_kernels
         with placeholder_model_kernels(), init_empty_weights():
             self.empty_model = transformers.AutoModel.from_config(
                 hf_config, trust_remote_code=trust_remote_code

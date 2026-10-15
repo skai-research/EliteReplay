@@ -1,0 +1,20 @@
+offline:
+  candidates_per_question: 72
+  seed_samples: 8
+  rounds: 8
+  children_per_round: 8
+  export_target: 1500
+  minimum_examples: 1000
+  per_question_cap: 8
+  generation_batch_size: 64
+  taxonomy_size: 24
+  taxonomy_sample_cap: 1000
+  feasible_labels: 8
+  label_confidence: 0.6
+  labeler_model: qwen3-coder-30b-a3b-instruct
+  labeler_provider: litellm
+  labeler_api_base: https://labeler.example.invalid/v1
+  label_workers: 16
+  verifier_workers: 16
+  cell_descriptor: primary_coarse_v1
+  attempt_aware: true

@@ -2,7 +2,7 @@ import math
 import unittest
 
 from metrics import evaluate
-from elitereplay.analysis.sql_strategy import similarity_sql, strategy_key
+from elitereplay.evaluation.descriptors.sql_strategy import similarity_sql, strategy_key
 
 A = "SELECT a FROM t"
 B = "SELECT a FROM t JOIN u ON t.id = u.id"

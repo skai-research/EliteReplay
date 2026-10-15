@@ -1,4 +1,4 @@
-FROM vllm/vllm-openai@sha256:1acd26aae64b2816e2692f74f6d4b8d4efef412d7491d33d02b3537f5b804376
+FROM docker.io/vllm/vllm-openai@sha256:68b773151407ca28c05479c02c0c08a573285ba197c8ff35d2103acd97aff78c
 USER root
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git ca-certificates build-essential ninja-build && \

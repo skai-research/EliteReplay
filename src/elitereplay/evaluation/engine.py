@@ -26,24 +26,13 @@ def sample_seed(seed, problem_id, sample_id):
 def adapter(c, output):
     v = c["verifier"]
     if c["domain"] == "bird":
-        from elitereplay.EliteReplay.bird import BirdAdapter
+        from elitereplay.archive.bird import BirdAdapter
         return BirdAdapter(max_response_bytes=v["max_response_bytes"])
     if c["domain"] == "spider":
         from .spider import SpiderAdapter
         return SpiderAdapter(database_root=v["spider_database_root"],
                              timeout=v["spider_timeout_seconds"], max_response_bytes=v["max_response_bytes"])
-    if c["domain"] == "livecodebench":
-        from .livecodebench import LiveCodeBenchAdapter
-        return LiveCodeBenchAdapter(evaluator_root=v["livecodebench_evaluator_root"],
-            max_response_bytes=v["max_response_bytes"], sandbox_config={
-                "apptainer_image": v["taco_image"], "workspace_root": str(output / "sandbox"),
-                **{k: v[k] for k in ("wall_timeout_seconds", "per_test_timeout_seconds", "cpu_seconds", "memory_bytes")},
-                "max_tests": None})
-    from .official_taco import OfficialTacoAdapter
-    return OfficialTacoAdapter(evaluator_root=v["taco_evaluator_root"], max_response_bytes=v["max_response_bytes"], sandbox_config={
-        "apptainer_image": v["taco_image"], "workspace_root": str(output / "sandbox"),
-        **{k: v[k] for k in ("wall_timeout_seconds", "per_test_timeout_seconds", "cpu_seconds", "memory_bytes")},
-        "max_tests": None})
+    raise ValueError("This release supports BIRD and Spider evaluation")
 
 
 class Generator:
@@ -322,7 +311,7 @@ def summarize(c, name, items, output, *, smoke=False, smoke_samples=2):
         "estimator": "mean_q [1 - choose(n-c_q,k)/choose(n,k)]",
         "truncated_samples": truncated, "truncation_rate": truncated / (n * len(tasks)),
         "errors": dict(errors), "sampling": c["sampling"],
-        "verifier": "pinned_bird_execution_accuracy" if c["domain"] == "bird" else "pinned_DPH_Spider_execution_accuracy_direct_SQL" if c["domain"] == "spider" else "pinned_LiveCodeBench_v6_lite_official_checker_raw_Python" if c["domain"] == "livecodebench" else "pinned_FlagOpen_TACO_in_Apptainer_all_tests",
+        "verifier": "pinned_bird_execution_accuracy" if c["domain"] == "bird" else "pinned_DPH_Spider_execution_accuracy_direct_SQL",
         "output_contract": "strict_raw_SQL_or_Python; truncated_responses_fail; no_deduplication_or_reranking"}
     manifest = output / "bundle/manifest.json"
     if manifest.exists():

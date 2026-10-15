@@ -1209,7 +1209,7 @@ class FSDPEngineWithLMHead(FSDPEngine):
                     cu_seqlens = input_ids.offsets()
                     seq_lengths = cu_seqlens.diff()
                     starts = torch.zeros_like(seq_lengths, dtype=torch.int64)
-                    from elitereplay.baselines.logprobs import unpad_logits
+                    from elitereplay.training.logprobs import unpad_logits
                     logits_rmpad = unpad_logits(logits, seq_lengths)
                     input_ids_rmpad_rolled = output_args["input_ids_rmpad_rolled"]
                     log_probs = logprobs_from_logits(logits=logits_rmpad, labels=input_ids_rmpad_rolled)

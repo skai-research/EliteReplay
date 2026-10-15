@@ -38,7 +38,6 @@ sampling:
   samples_per_block: 8
 runtime:
   launcher: native
-  image: external/images/elitereplay-v080-vllm0202-cu130.sif
   tensor_parallel_size: 1
   gpu_memory_fraction: 0.8
   max_num_seqs: 64
@@ -50,10 +49,4 @@ verifier:
   bird_database_root: external/bird-data/dev_20240627/dev_databases
   bird_evaluator_root: external/bird-mini-dev
   bird_timeout_seconds: 30
-  taco_evaluator_root: external/TACO-evaluation
-  taco_image: external/images/dare-python-py311.sif
-  wall_timeout_seconds: 600
-  per_test_timeout_seconds: 2
-  cpu_seconds: 600
-  memory_bytes: 2147483648
   max_response_bytes: 131072

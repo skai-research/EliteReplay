@@ -214,3 +214,18 @@ def test_async_queue_persists_later_block_before_slow_first_block(tmp_path):
         release.set();q.finish()
         assert (tmp_path/'slow.json').exists()
         assert q.completed==2
+
+
+def test_smoke_is_separate_from_main_and_resumable(config, items):
+    from elitereplay.evaluation.config import run_dir
+    output = run_dir(config, "base", smoke=True)
+    assert output != run_dir(config, "base")
+    output.mkdir(parents=True)
+    FakeGenerator.calls = []
+    first = run(config, "base", items, output, smoke=True,
+                generator_factory=FakeGenerator, verifier=FakeVerifier())
+    assert first["status"] == "smoke_complete" and first["total_samples"] == 4
+    second = run(config, "base", items, output, smoke=True,
+                 generator_factory=FakeGenerator, verifier=FakeVerifier())
+    assert second == first and len(FakeGenerator.calls) == 4
+    assert not run_dir(config, "base").exists()

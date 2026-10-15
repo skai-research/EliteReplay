@@ -1,0 +1,14 @@
+extends:
+- ../defaults/bird.yaml
+method: setpo
+method_options:
+  setpo_weight: 0.05
+  setpo_tau: 1.0
+  embedding_model: external/hf-cache/hub/models--Qwen--Qwen3-Embedding-0.6B/snapshots/97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3
+  embedding_device: cpu
+  embedding_cpu_dtype: float32
+  embedding_cpu_threads: 8
+  embedding_batch_size: 1
+  embedding_max_tokens: 32768
+runtime:
+  max_checkpoints_to_keep: 2

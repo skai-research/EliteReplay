@@ -1,0 +1,10 @@
+extends:
+- ../defaults/bird.yaml
+- ../archive/bird.yaml
+method: EliteReplay
+training:
+  replay_per_iteration: 128
+method_options:
+  sft_weight: 0.05
+  sft_reduction: response_mean
+  replay_sampling: mode_cycles

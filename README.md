@@ -23,25 +23,20 @@ This project provides the archive builder, the released BIRD archive, EliteRepla
 
 | Component | What it provides | Where to start |
 | --- | --- | --- |
-| **Archive builder** | Strategy labeling, mutation, SQL verification, MAP-Elites insertion, and replay-set selection | [Search code](src/elitereplay/EliteReplay/) · [Build an archive](docs/training.md#3-choose-an-archive) |
+| **Archive builder** | Strategy labeling, mutation, SQL verification, MAP-Elites insertion, and replay-set selection | [Search code](src/elitereplay/archive/) · [Build an archive](docs/training.md#3-choose-an-archive) |
 | **Released BIRD archive** | 2,708 occupied cells across 780 questions, with 1,500 selected replay examples | [Archive files](elite_archive/) · [Import instructions](docs/training.md#use-the-released-archive) |
-| **Training** | EliteReplay, IID replay, GRPO, MaxRL, SetPO, and DPH-F objectives and configurations | [Training code](src/elitereplay/baselines/) · [Configs](configs/) · [Guide](docs/training.md) |
+| **Training** | EliteReplay, IID replay, GRPO, MaxRL, SetPO, and DPH-F objectives and configurations | [Training code](src/elitereplay/training/) · [Configs](configs/) · [Guide](docs/training.md) |
 | **SQL evaluation** | Resumable generation and execution checking on BIRD and Spider | [Evaluation code](src/elitereplay/evaluation/) · [Guide](docs/evaluation.md#generate-and-verify-sql) |
 | **Diversity metrics** | U@k, effective diversity, strategy retention, pass@k, and bootstrap intervals | [Metric implementation](src/elitereplay/evaluation/diversity.py) · [Definitions](docs/evaluation.md#definitions-and-protocols) |
 
 ## Installation
 
-Clone the repository and install the Python package:
-
 ```bash
 git clone https://github.com/skai-research/EliteReplay.git
 cd EliteReplay
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -e '.[test,data]'
 ```
 
-This installs the CPU analysis and data tools. For training and SQL generation, use the GPU environment below on your training machine:
+**For training and SQL generation**, build the GPU environment and open a shell in it:
 
 ```bash
 docker build -f containers/Dockerfile -t elitereplay:runtime .
@@ -49,107 +44,134 @@ docker run --gpus all --ipc=host --shm-size=32g -it \
   -v "$PWD":/workspace -w /workspace elitereplay:runtime
 ```
 
-Inside the container, install the project and its training integration:
+Inside the container:
 
 ```bash
-pip install -e '.[test,data]'
-python scripts/baselines/setup_runtime.py --install
-python scripts/baselines/fetch_upstream.py --clone
-python scripts/baselines/setup_kernels.py --install
+pip install -e '.[data]'
+elitereplay setup
+elitereplay doctor --training
 ```
 
-The default training configuration uses **4 × A100 80 GB GPUs**, split between two training GPUs and two rollout GPUs. The environment uses Python 3.12, PyTorch 2.11, CUDA 13.0, and vLLM 0.20.2. See [runtime setup](docs/training.md#1-runtime) for dependency and kernel-build details.
+`setup` installs the pinned Trinity/veRL integration and compiles the training kernels. `doctor` reports missing dependencies and checks the GPU allocation. The default training configuration uses **4 × A100 80 GB GPUs**: two for training and two for rollout generation. See the [training guide](docs/training.md) for environment details.
+
+**For CPU metrics only**, use a virtual environment:
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -e .
+elitereplay doctor
+elitereplay metrics examples/scored_sql.jsonl --k 1 2 4 --bootstrap 0
+```
 
 ## Training on BIRD
 
 ### 1. Prepare the data
 
-Download the base model and question data:
-
 ```bash
-python scripts/fetch_assets.py --models
+elitereplay data fetch --models
 ```
 
-Place the official BIRD training databases at `external/bird-data/train_databases/<db_id>/<db_id>.sqlite`, then prepare the training split:
+Download the official BIRD training databases and place them at `external/bird-data/train_databases/<db_id>/<db_id>.sqlite`, then run:
 
 ```bash
-python scripts/baselines/prepare_data.py --config experiments/baselines/data/bird.yaml
+elitereplay data prepare
 ```
 
-This prepares 5,000 training questions, a 1,000-question archive subset, and 668 internal validation questions. See [data setup](docs/training.md#2-data-and-base-model) for download and directory details.
+This prepares 5,000 training questions, a 1,000-question archive subset, and 668 internal validation questions. [Data setup details →](docs/training.md#2-data-and-base-model)
 
 ### 2. Choose an archive
 
-The [archive builder](src/elitereplay/EliteReplay/) samples initial SQL candidates, selects target strategies, and mutates verified parents. Each verified candidate enters the cell for the strategy and structure it actually uses. The final export selects examples across questions and occupied cells for replay.
-
-Use the released archive to start training:
+Use the released archive:
 
 ```bash
-python scripts/import_elite_archive.py --config configs/elitereplay.yaml
+elitereplay archive import
 ```
 
-The released files include the [full archive](elite_archive/map_elites_archive.json), [replay examples](elite_archive/archive.jsonl), and [strategy taxonomy](elite_archive/taxonomy.json). Fresh search uses eight initial samples followed by eight rounds of eight mutations per question. See [archive setup](docs/training.md#3-choose-an-archive) for labeler configuration and export options.
-
-To build your own archive, configure a labeler and choose a separate output root as described in [archive setup](docs/training.md#rebuild-the-archive), then run:
+Or configure a labeler and a separate output root to build your own:
 
 ```bash
-python scripts/baselines/run.py --config configs/elitereplay.yaml prepare
+elitereplay archive build --config configs/training/elitereplay.yaml
 ```
+
+The archive builder samples SQL, mutates verified parents toward target strategies, and selects verified examples across questions and occupied cells. The release includes the [full archive](elite_archive/map_elites_archive.json), [1,500 replay examples](elite_archive/archive.jsonl), and [strategy taxonomy](elite_archive/taxonomy.json). [Archive setup details →](docs/training.md#3-choose-an-archive)
 
 ### 3. Launch training
 
-Training uses veRL and Trinity-RFT for policy optimization and supervised replay, with vLLM for rollout generation.
-
-Once the runtime, data, and archive are ready:
-
 ```bash
-python scripts/baselines/run.py --config configs/elitereplay.yaml smoke
-python scripts/baselines/run.py --config configs/elitereplay.yaml train
-# Resume an interrupted run:
-python scripts/baselines/run.py --config configs/elitereplay.yaml resume
+elitereplay train --check
+elitereplay train --smoke
+elitereplay train
+# Resume after an interruption:
+elitereplay train --resume
 ```
 
-Edit [the EliteReplay config](configs/elitereplay.yaml) to set training parameters and output locations. The [objective](src/elitereplay/baselines/objective.py) combines GRPO with a response-mean supervised replay loss, using a default replay weight of 0.05. [Comparison configs](configs/) use the same runner for the included baselines.
+The default is [EliteReplay](configs/training/elitereplay.yaml). Select another method with `--config`, for example:
 
-The [runtime integration](vendor/runtime/) includes complete modified Trinity/veRL source files, installed over pinned upstream versions. See the [training guide](docs/training.md) for environment setup, data preparation, checkpointing, and model export.
+```bash
+elitereplay train --config configs/training/grpo.yaml --smoke
+elitereplay train --config configs/training/grpo.yaml
+```
+
+Each [method config](configs/training/) contains its own settings and inherits [shared BIRD defaults](configs/defaults/bird.yaml). Inspect the full configuration or generation budget with:
+
+```bash
+elitereplay config
+elitereplay config --plan
+```
+
+[Configuration guide →](docs/configuration.md)
 
 ## Evaluation
 
 ### BIRD and Spider
 
-The evaluator generates SQL and checks execution results on BIRD and Spider. Set the dataset and model paths in the [evaluation configs](configs/evaluation/), then run:
+Set the dataset and model paths in the [evaluation configs](configs/evaluation/), then run:
 
 ```bash
-python scripts/evaluation/run.py --config configs/evaluation/bird.yaml prepare
-python scripts/evaluation/run.py --config configs/evaluation/bird.yaml --model elitereplay run
+elitereplay evaluate --config configs/evaluation/bird.yaml --prepare
+elitereplay evaluate --config configs/evaluation/bird.yaml --model elitereplay --smoke
+elitereplay evaluate --config configs/evaluation/bird.yaml --model elitereplay
 ```
 
-Use `spider.yaml` for Spider. Generation and verification are resumable; failed and truncated attempts remain in the sample pool. The [evaluation guide](docs/evaluation.md) covers dataset setup, model exports, and rollout formats.
+Use `spider.yaml` for Spider. Evaluation resumes completed generation and verification blocks. [Dataset and model setup →](docs/evaluation.md#generate-and-verify-sql)
 
 ### Diversity metrics
 
-The metric CLI takes scored SQL samples and reports pass@k, U@k, effective diversity, and strategy retention. Try it on the small synthetic example:
+Convert verified rollouts to the scored JSONL format, then compute pass@k, U@k, effective diversity, and strategy retention:
 
 ```bash
-elitereplay-metrics examples/scored_sql.jsonl --k 1 2 4 --bootstrap 0
+elitereplay rollouts --dataset bird \
+  --run base=artifacts/evaluation/bird/official_dev/base/main \
+  --run elitereplay=artifacts/evaluation/bird/official_dev/elitereplay/main \
+  --output bird_samples.jsonl
+elitereplay metrics bird_samples.jsonl --output bird_metrics.json
 ```
 
-For model outputs, first [convert verified rollouts](docs/evaluation.md#convert-existing-rollout-files) into the shared JSONL format, then run:
+All metrics use the same input sample pool. Descriptor choices and bootstrap settings are configurable. [Metric definitions →](docs/evaluation.md#definitions-and-protocols)
 
-```bash
-elitereplay-metrics bird_samples.jsonl --output bird_metrics.json
+## Code organization
+
+```text
+src/elitereplay/
+  archive/                 # Search, strategy labels, mutations, archive export
+  training/                # Data splits, replay, run state, and checkpoint recovery
+    objectives/            # EliteReplay and baseline loss implementations
+  evaluation/              # Generation, execution checking, and metrics
+    descriptors/           # SQL strategy and AST representations
+    verifiers/             # Isolated BIRD SQL execution
+  integrations/            # Trinity workflow, veRL helpers, labeler client
+  data/                    # Shared BIRD schema and prompt preparation
+  cli/                     # Public commands, setup, and environment checks
+configs/                   # Shared defaults, per-method recipes, and evaluation
+runtime/locks/             # Framework, kernel, and reference-code versions
+vendor/runtime/            # Complete modified upstream framework files
+elite_archive/             # Released archive, replay examples, and taxonomy
 ```
 
-The CLI computes all metrics from the same input samples. Descriptor choices and bootstrap settings are configurable; see [metric definitions](docs/evaluation.md#definitions-and-protocols). Correctness labels come from the SQL evaluator, not the metric CLI.
+The CLI is the main entry point; `scripts/` holds the underlying task runners. See the [architecture guide](docs/architecture.md) for extension points and the [training guide](docs/training.md) for checkpoint export. Use `elitereplay --help` to list commands.
 
-## Documentation and support
-
-- [Training guide](docs/training.md): environment, data, archive construction, training, and checkpoint export.
-- [Evaluation guide](docs/evaluation.md): SQL verification, rollout conversion, metrics, and bootstrap intervals.
-- [Experiment notes](docs/reproducibility.md): configuration history, archive provenance, and analysis protocols.
-- [Validation notes](docs/validation.md): checks performed for this release.
-
-For questions or bugs, please [open an issue](https://github.com/skai-research/EliteReplay/issues). To run the tests locally, use `pytest -q`.
+For questions or bugs, please [open an issue](https://github.com/skai-research/EliteReplay/issues). Tests run manually with `pip install -e '.[test]'` and `pytest -q`. [Experiment notes](docs/reproducibility.md) and [validation notes](docs/validation.md) record configuration history and verification scope.
 
 ## Acknowledgements
 

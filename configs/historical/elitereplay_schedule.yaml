@@ -1,4 +1,3 @@
-# Original run schedule; reported checkpoint was iteration 110 of 200.
 schema_version: 1
 method: EliteReplay
 domain: bird
@@ -39,16 +38,6 @@ training:
   save_every: 5
 method_options:
   sft_weight: 0.05
-  js_weight: 0.2
-  setpo_weight: 0.05
-  setpo_tau: 1.0
-  embedding_model: external/hf-cache/hub/models--Qwen--Qwen3-Embedding-0.6B/snapshots/97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3
-  embedding_device: cpu
-  embedding_batch_size: 16
-  embedding_max_tokens: 32768
-  presample_rollouts: 8
-  preservation_threshold: 8
-  max_resample_groups: 64
   sft_reduction: response_mean
   replay_sampling: mode_cycles
 offline:
@@ -74,7 +63,6 @@ offline:
   attempt_aware: true
 runtime:
   launcher: native
-  image: external/images/elitereplay-v080-vllm0202-cu130.sif
   trainer_gpus: 2
   rollout_gpus: 2
   max_tokens_per_gpu: 24576
@@ -91,9 +79,4 @@ verifier:
   bird_database_root: external/bird-data/train_databases
   bird_evaluator_root: external/bird-mini-dev
   bird_timeout_seconds: 30
-  taco_image: external/images/dare-python-py311.sif
-  wall_timeout_seconds: 120
-  per_test_timeout_seconds: 2
-  cpu_seconds: 100
-  memory_bytes: 2147483648
   max_response_bytes: 131072

@@ -3,7 +3,6 @@ __pycache__/
 .pytest_cache/
 artifacts/
 data/*
-!data/preprocess_bird.py
 external/
 *.jsonl
 !elite_archive/archive.jsonl

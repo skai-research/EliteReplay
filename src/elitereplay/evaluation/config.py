@@ -9,7 +9,7 @@ import re
 
 import yaml
 
-ROOT = Path(os.environ.get("ELITEREPLAY_REPO_ROOT", Path(__file__).resolve().parents[3]))
+from elitereplay.project import ROOT
 KS = (1, 2, 4, 8, 16, 32, 64, 128)
 
 
@@ -53,12 +53,12 @@ def load(filename):
     fields = {
         "data": {"split", "release", "source_file", "source_revision", "prepared_dir", "expected_questions", "training_data_root"},
         "sampling": {"samples_per_question", "k_values", "seed", "temperature", "top_p", "top_k", "max_prompt_tokens", "max_response_tokens", "enable_thinking", "questions_per_batch", "samples_per_block"},
-        "runtime": {"launcher", "image", "tensor_parallel_size", "gpu_memory_fraction", "max_num_seqs", "verifier_workers",
+        "runtime": {"launcher", "tensor_parallel_size", "gpu_memory_fraction", "max_num_seqs", "verifier_workers",
                     "enforce_eager", "enable_prefix_caching", "overlap_verification"},
-        "verifier": {"bird_database_root", "bird_evaluator_root", "bird_timeout_seconds", "taco_evaluator_root", "taco_image", "wall_timeout_seconds", "per_test_timeout_seconds", "cpu_seconds", "memory_bytes", "max_response_bytes"},
+        "verifier": {"bird_database_root", "bird_evaluator_root", "bird_timeout_seconds", "max_response_bytes"},
     }
-    if c["domain"] == "livecodebench":
-        fields["verifier"].add("livecodebench_evaluator_root")
+    if c["runtime"].get("launcher") == "apptainer" or "image" in c["runtime"]:
+        fields["runtime"].add("image")
     if c["domain"] == "spider":
         fields["verifier"] |= {"spider_database_root", "spider_timeout_seconds"}
         if c["verifier"].get("spider_timeout_seconds", 0) <= 0:
@@ -97,11 +97,9 @@ def load(filename):
     if c["domain"] in ("bird", "spider") and not d["source_file"]:
         raise ValueError("BIRD needs the original official JSON path")
     v = c["verifier"]
-    for key in ("bird_timeout_seconds", "wall_timeout_seconds", "per_test_timeout_seconds", "cpu_seconds", "memory_bytes", "max_response_bytes"):
+    for key in ("bird_timeout_seconds", "max_response_bytes"):
         if not isinstance(v[key], (int, float)) or v[key] <= 0:
             raise ValueError(f"verifier.{key} must be positive")
-    if int(v["per_test_timeout_seconds"]) != v["per_test_timeout_seconds"]:
-        raise ValueError("Official TACO per-test timeout must be a whole number of seconds")
     if not isinstance(c["models"], dict) or not c["models"]:
         raise ValueError("At least one named model is required")
     for name, m in c["models"].items():
@@ -119,14 +117,12 @@ def selected(c, name):
     c = json.loads(json.dumps(c))
     c["models"] = {name: c["models"][name]}
     for section, keys in {"data": ["source_file", "prepared_dir", "training_data_root"],
-                          "runtime": ["image"], "verifier": ["bird_database_root", "bird_evaluator_root", "taco_evaluator_root", "taco_image"]}.items():
+                          "runtime": ["image"], "verifier": ["bird_database_root", "bird_evaluator_root"]}.items():
         for key in keys:
-            if c[section][key] is not None:
+            if c[section].get(key) is not None:
                 c[section][key] = str(path(c[section][key]))
     if c["domain"] == "spider":
         c["verifier"]["spider_database_root"] = str(path(c["verifier"]["spider_database_root"]))
-    if c["domain"] == "livecodebench":
-        c["verifier"]["livecodebench_evaluator_root"] = str(path(c["verifier"]["livecodebench_evaluator_root"]))
     c["output_root"] = str(path(c["output_root"]))
     for key in ("path", "checkpoint_marker"):
         if c["models"][name][key] is not None:

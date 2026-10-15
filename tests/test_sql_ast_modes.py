@@ -6,7 +6,7 @@ import sys
 
 import pytest
 
-from elitereplay.analysis.sql_ast_modes import full_ast_key
+from elitereplay.evaluation.descriptors.sql_ast_modes import full_ast_key
 
 
 @pytest.mark.parametrize('other', [

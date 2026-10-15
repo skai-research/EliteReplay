@@ -19,6 +19,7 @@ test = ["pytest==8.4.2"]
 data = ["huggingface-hub>=0.34,<2"]
 
 [project.scripts]
+elitereplay = "elitereplay.cli:main"
 elitereplay-metrics = "elitereplay.evaluation.diversity:main"
 
 [project.urls]
@@ -28,7 +29,7 @@ Repository = "https://github.com/skai-research/EliteReplay"
 where = ["src"]
 
 [tool.setuptools.package-data]
-"elitereplay.baselines" = ["SETPO_LICENSE"]
+"elitereplay.training.objectives" = ["SETPO_LICENSE"]
 "elitereplay.evaluation.vendor" = ["DPH_LICENSE", "README.md"]
 
 [tool.pytest.ini_options]

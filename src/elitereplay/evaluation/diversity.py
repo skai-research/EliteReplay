@@ -10,9 +10,9 @@ from pathlib import Path
 import sys
 
 
-from elitereplay.analysis.sql_strategy import strategy_key, similarity_sql
-from elitereplay.analysis.sql_ast_modes import bound_alias_ast_key
-from elitereplay.analysis.structural_descriptor_v2 import describe
+from elitereplay.evaluation.descriptors.sql_strategy import strategy_key, similarity_sql
+from elitereplay.evaluation.descriptors.sql_ast_modes import bound_alias_ast_key
+from elitereplay.evaluation.descriptors.structural_descriptor_v2 import describe
 
 DESCRIPTORS = ("coarsened_v2", "bound_alias_ast", "height4_dice")
 

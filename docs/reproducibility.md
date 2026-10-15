@@ -7,7 +7,7 @@ checkpoints or pretending that a new recipe was the run used for a figure.
 
 ## Training counters
 
-`configs/elitereplay.yaml` and the comparison YAMLs implement the manuscript's
+`configs/training/elitereplay.yaml` and the comparison recipes implement the manuscript's
 100 logged-iteration recipe. With `prompts_per_optimizer_update: 128`, there is
 one optimizer update per logged iteration. This is an explicit reproduction
 recipe, not a description of every historical checkpoint.

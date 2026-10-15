@@ -1,0 +1,56 @@
+schema_version: 1
+domain: bird
+seed: 42
+output_root: artifacts
+model:
+  path: external/hf-cache/hub/models--Qwen--Qwen3.5-4B-Base/snapshots/1001bb4d826a52d1f399e183466143f4da7b741b
+  revision: 1001bb4d826a52d1f399e183466143f4da7b741b
+  max_prompt_tokens: 16384
+  max_response_tokens: 4096
+  enable_thinking: false
+data:
+  root: data/bird
+  train_questions: 5000
+  archive_questions: 1000
+training:
+  rollout_iterations: 100
+  prompts_per_iteration: 128
+  rollouts_per_prompt: 8
+  prompts_per_optimizer_update: 128
+  replay_per_iteration: 0
+  learning_rate: 1.0e-06
+  warmup_iterations: 5
+  weight_decay: 0.01
+  betas:
+  - 0.9
+  - 0.999
+  epsilon: 1.0e-08
+  grad_clip: 1.0
+  clip_low: 0.2
+  clip_high: 0.28
+  temperature: 1.0
+  top_p: 0.95
+  top_k: -1
+  min_p: 0.0
+  presence_penalty: 0.0
+  repetition_penalty: 1.0
+  save_every: 10
+runtime:
+  launcher: native
+  trainer_gpus: 2
+  rollout_gpus: 2
+  max_tokens_per_gpu: 24576
+  rollout_memory_fraction: 0.8
+  max_num_seqs: 64
+  rollout_workers: 16
+  cpus: 32
+  sync_timeout_seconds: 7200
+  max_checkpoints_to_keep: 1
+  monitor: tensorboard
+  wandb_mode: offline
+  nccl_p2p: true
+verifier:
+  bird_database_root: external/bird-data/train_databases
+  bird_evaluator_root: external/bird-mini-dev
+  bird_timeout_seconds: 30
+  max_response_bytes: 131072

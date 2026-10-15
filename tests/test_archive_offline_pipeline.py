@@ -6,11 +6,11 @@ from typing import Any, Mapping, Sequence
 
 import pytest
 
-from elitereplay.EliteReplay.archive import MapElitesArchive
-from elitereplay.EliteReplay.domain import ParseResult, VerificationResult
-from elitereplay.EliteReplay.pipeline import EliteReplayPipeline
-from elitereplay.EliteReplay.providers import MetadataBatchExhaustedError
-from elitereplay.EliteReplay.schema import (
+from elitereplay.archive.archive import MapElitesArchive
+from elitereplay.archive.domain import ParseResult, VerificationResult
+from elitereplay.archive.pipeline import EliteReplayPipeline
+from elitereplay.archive.providers import MetadataBatchExhaustedError
+from elitereplay.archive.schema import (
     GenerationRequest,
     GenerationResponse,
     LabelDecision,
@@ -19,8 +19,8 @@ from elitereplay.EliteReplay.schema import (
     Taxonomy,
     load_pipeline_config,
 )
-from elitereplay.EliteReplay.trinity_support import UniformProblemNicheArchive
-from elitereplay.EliteReplay.tokenization import FunctionalTokenizerRoundTripGate
+from elitereplay.archive.trinity_support import UniformProblemNicheArchive
+from elitereplay.archive.tokenization import FunctionalTokenizerRoundTripGate
 
 
 class FakeAdapter:
