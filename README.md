@@ -1,63 +1,105 @@
 # EliteReplay
 
-Code for *EliteReplay: Preserving Diverse Solutions in RL Post-Training via Quality-Diversity Search*.
+**[Paper (arXiv)](https://arxiv.org/abs/ARXIV_ID) · [Model (Hugging Face)](https://huggingface.co/HF_ORG/EliteReplay-BIRD) · [Training guide](docs/training.md) · [Evaluation guide](docs/evaluation.md)**
 
-EliteReplay builds a quality-diversity archive of verified SQL solutions with a frozen base model, then trains with GRPO and a supervised replay loss over that fixed archive.
+*The paper and model links are placeholders and will be updated when available.*
 
-This repository contains archive creation, BIRD training, BIRD/Spider execution evaluation, and the U@k, effective-diversity, and strategy-retention scorers. It includes the released archive: **2,708 occupied cells across 780 questions**, and **1,500 replay examples**. Model weights will be published separately; they are not included here.
+Official code and artifacts for **EliteReplay: Preserving Diverse Solutions in RL Post-Training via Quality-Diversity Search**.
 
-## Quick start: evaluation metrics on CPU
+EliteReplay preserves diverse solutions during reinforcement learning by combining GRPO with supervised replay from a quality-diversity archive. A frozen base model builds the archive through strategy-guided search, and execution verification keeps correct SQL solutions for replay.
+
+This project provides the archive builder, the released BIRD archive, EliteReplay and baseline training, BIRD/Spider evaluation, and tools for measuring solution diversity.
+
+## What's included
+
+| Component | What it provides | Where to start |
+| --- | --- | --- |
+| **Archive builder** | Strategy labeling, mutation, SQL verification, MAP-Elites insertion, and replay-set selection | [Search code](src/evorl/EliteReplay/) · [Build an archive](docs/training.md#3-choose-an-archive) |
+| **Released BIRD archive** | 2,708 occupied cells across 780 questions, with 1,500 selected replay examples | [Archive files](elite_archive/) · [Import instructions](docs/training.md#use-the-released-archive) |
+| **Training** | EliteReplay, IID replay, GRPO, MaxRL, SetPO, and DPH-F objectives and configurations | [Training code](src/evorl/baselines/) · [Configs](configs/) · [Guide](docs/training.md) |
+| **SQL evaluation** | Resumable generation and execution checking on BIRD and Spider | [Evaluation code](src/evorl/evaluation/) · [Guide](docs/evaluation.md#generate-and-verify-sql) |
+| **Diversity metrics** | U@k, effective diversity, strategy retention, pass@k, and bootstrap intervals | [Metric implementation](src/evorl/evaluation/diversity.py) · [Definitions](docs/evaluation.md#definitions-and-protocols) |
+
+## Get started
+
+Clone the repository and install the Python package:
 
 ```bash
+git clone https://github.com/skai-research/EliteReplay.git
+cd EliteReplay
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e '.[test,data]'
-pytest -q
+```
+
+This installation supports CPU analysis and data tools. GPU training and generation use the environment described in the [training guide](docs/training.md#1-runtime).
+
+### Build or use an archive
+
+The [archive builder](src/evorl/EliteReplay/) samples initial SQL candidates, selects target strategies, and mutates verified parents. Each verified candidate enters the cell for the strategy and structure it actually uses. The final export selects examples across questions and occupied cells for replay.
+
+After [setting up the runtime and BIRD data](docs/training.md), choose one of these paths:
+
+```bash
+# Use the released archive.
+python scripts/import_elite_archive.py --config configs/elitereplay.yaml
+
+# Or build a new archive with a configured labeler and a separate output root.
+python scripts/baselines/run.py --config configs/elitereplay.yaml prepare
+```
+
+The released files include the [full archive](elite_archive/map_elites_archive.json), [replay examples](elite_archive/archive.jsonl), and [strategy taxonomy](elite_archive/taxonomy.json). Fresh search uses eight initial samples followed by eight rounds of eight mutations per question. See [archive setup](docs/training.md#3-choose-an-archive) for labeler configuration and export options.
+
+### Train with EliteReplay
+
+Training uses veRL and Trinity-RFT for policy optimization and supervised replay, with vLLM for rollout generation. The default hardware layout uses four A100 80 GB GPUs: two for training and two for generation.
+
+Once the runtime, data, and archive are ready:
+
+```bash
+python scripts/baselines/run.py --config configs/elitereplay.yaml smoke
+python scripts/baselines/run.py --config configs/elitereplay.yaml train
+# Resume an interrupted run:
+python scripts/baselines/run.py --config configs/elitereplay.yaml resume
+```
+
+Edit [the EliteReplay config](configs/elitereplay.yaml) to set training parameters and output locations. The [objective](src/evorl/baselines/objective.py) combines GRPO with a response-mean supervised replay loss, using a default replay weight of 0.05. [Comparison configs](configs/) use the same runner for the included baselines.
+
+The [runtime integration](vendor/runtime/) includes complete modified Trinity/veRL source files, installed over pinned upstream versions. See the [training guide](docs/training.md) for environment setup, data preparation, checkpointing, and model export.
+
+### Evaluate SQL models
+
+The evaluator generates SQL and checks execution results on BIRD and Spider. Set the dataset and model paths in the [evaluation configs](configs/evaluation/), then run:
+
+```bash
+python scripts/evaluation/run.py --config configs/evaluation/bird.yaml prepare
+python scripts/evaluation/run.py --config configs/evaluation/bird.yaml --model elitereplay run
+```
+
+Use `spider.yaml` for Spider. Generation and verification are resumable; failed and truncated attempts remain in the sample pool. The [evaluation guide](docs/evaluation.md) covers dataset setup, model exports, and rollout formats.
+
+### Measure solution diversity
+
+The metric CLI takes scored SQL samples and reports pass@k, U@k, effective diversity, and strategy retention. Try it on the small synthetic example:
+
+```bash
 elitereplay-metrics examples/scored_sql.jsonl --k 1 2 4 --bootstrap 0
 ```
 
-The example uses synthetic SQL and supplied correctness labels to demonstrate the metric interface. It does not run a database or represent benchmark results.
+For model outputs, first [convert verified rollouts](docs/evaluation.md#convert-existing-rollout-files) into the shared JSONL format, then run:
 
-For real results, retain all generated attempts, including failures, and run the SQL execution evaluator first. The default metric protocol uses coarsened structural descriptors for U@k/retention and alias-normalized AST identity for effective diversity. These are separate from the archive's labeler-induced search taxonomy. See [evaluation](docs/evaluation.md) for definitions, protocol options, bootstrap intervals, and rollout conversion.
+```bash
+elitereplay-metrics bird_samples.jsonl --output bird_metrics.json
+```
 
-## Archive creation and training
+The CLI computes all metrics from the same input samples. Descriptor choices and bootstrap settings are configurable; see [metric definitions](docs/evaluation.md#definitions-and-protocols). Correctness labels come from the SQL evaluator, not the metric CLI.
 
-Start with [the training guide](docs/training.md). It covers:
+## Development and experiment notes
 
-1. Building the pinned GPU environment and installing Trinity/veRL source overlays.
-2. Downloading the base model and preparing the exact 5,000-question BIRD split.
-3. Importing the supplied archive or building it with eight seeds and eight rounds of eight mutations per question.
-4. Running the required training smoke check, full training, checkpoint resume, and HF-format export.
+Run the tests manually with `pytest -q`. The internal Python namespace is `evorl`; historical `qd_chord` identifiers refer to EliteReplay.
 
-Training uses **four A100 80 GB GPUs**, split into two trainer GPUs and two rollout GPUs. The standalone SQL evaluator defaults to one GPU. No cluster scheduler or project account is required by the public commands.
+[Experiment notes](docs/reproducibility.md) document configuration history, archive provenance, and saved analysis protocols. [Validation notes](docs/validation.md) describe the checks performed for this release. Model weights will be published separately on Hugging Face.
 
-The core supervised objective is implemented directly in [`objective.py`](src/evorl/baselines/objective.py):
+## License
 
-\[
-L=(1-\mu)L_{\mathrm{GRPO}}+\mu L_{\mathrm{SFT}},\qquad\mu=0.05.
-\]
-
-The SFT term averages negative log likelihood within each response, then over replay responses. Replay cycles across questions and occupied modes. [`integration.py`](src/evorl/baselines/integration.py) registers the objective and sampler with Trinity-RFT. The complete modified upstream files are in [`vendor/runtime`](vendor/runtime), with licenses, pinned revisions, and hashes. Installation does not require applying diffs or rewriting source at launch.
-
-## Reproduction status
-
-The default `configs/*.yaml` encode the manuscript's **100-iteration recipe**. The historical EliteReplay run used a 200-iteration configured schedule, two optimizer updates per iteration, and was evaluated at checkpoint 110. These counters must not be conflated. The historical configuration is provided separately, and the differences are described in [reproducibility notes](docs/reproducibility.md).
-
-This release adds runnable tooling and validation to the original submission package. It does **not** claim a new full GPU rerun or exact regeneration of every numerical claim in the manuscript. The [validation record](docs/validation.md) distinguishes completed checks from work that requires GPU allocations and benchmark assets.
-
-## Layout
-
-| Path | Purpose |
-| --- | --- |
-| `src/evorl/EliteReplay/` | Search, descriptors, verified archive, mutation providers, export |
-| `src/evorl/baselines/` | Training objectives, replay sampler, data contracts, resume |
-| `plugins/elitereplay_trinity.py` | SQL rollout workflow and Trinity integration |
-| `src/evorl/evaluation/` | SQL generation, correctness verification, diversity metrics |
-| `configs/` | EliteReplay, IID replay, GRPO, MaxRL, SetPO, DPH-F recipes |
-| `elite_archive/` | Fixed archive, replay export, taxonomy, provenance |
-| `vendor/runtime/` | Complete modified Trinity and veRL files |
-| `results/reference_metrics.json` | Saved analysis reference values and source hashes |
-
-The internal Python namespace `evorl` is retained to keep saved runtime contracts compatible. The method is named **EliteReplay** in the public interface. Historical `qd_chord` identifiers in provenance refer to EliteReplay.
-
-Code is released under [Apache-2.0](LICENSE), subject to the original notices for third-party components. See [THIRD_PARTY_NOTICES](THIRD_PARTY_NOTICES.md). Dataset and model licenses remain separate.
+Original EliteReplay code is released under the [MIT License](LICENSE). Included third-party code retains its upstream licenses; see [third-party notices](THIRD_PARTY_NOTICES.md). Dataset and model terms are separate.

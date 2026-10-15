@@ -8,7 +8,8 @@ version = "0.2.0"
 description = "Verified quality-diversity archives and supervised replay for text-to-SQL RL"
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
-license = "Apache-2.0"
+# Project code is MIT; the distribution also includes Apache-2.0 components.
+license = "MIT AND Apache-2.0"
 license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
 authors = [{name = "Hanane Moussa"}]
 dependencies = ["PyYAML==6.0.2", "pyarrow==19.0.1", "pandas==2.2.3", "numpy==2.2.6", "sqlglot==30.17.0", "tqdm>=4.66,<5"]

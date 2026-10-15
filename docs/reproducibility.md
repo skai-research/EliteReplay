@@ -1,4 +1,4 @@
-# Reproducibility and manuscript alignment
+# Experiment notes
 
 This release keeps the experiment's archive, objective implementations, verifier
 contracts, and pinned framework integration available as source. It corrects
