@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "repositories": [
+    {
+      "name": "trinity",
+      "path": "Trinity-RFT",
+      "url": "https://github.com/agentscope-ai/Trinity-RFT.git",
+      "commit": "9a7e26e7d71b843d19e70344a2fe3b47efe2f418",
+      "patch": "experiments/baselines/runtime/trinity-compat.patch",
+      "patch_sha256": "d1b0012d06bf113bdb78cb529ac836f2b4f0b1d3852ca6da85128ecc69001679",
+      "patched_files": {
+        "trinity/cli/launcher.py": "08a7dc4409641ea7aea149ad6a9b15c357e285639c06cf7b318f6f9ca6699bad",
+        "trinity/common/models/vllm_model.py": "84e2af242371cc369352e2422f120258d43c20c3754fd9fcc7ff82dc05a5cf8b",
+        "trinity/common/models/vllm_worker.py": "712345f9184e76308020b372c8af9e74e44d7f45a0b09a3b632f6e6a9011c2a7",
+        "trinity/trainer/trainer.py": "d3a95625a5893285c56c78da40e4b105a959db91ad93543dd3c98dec01a03aa0",
+        "trinity/trainer/verl/losses.py": "0b535a1ba1e64cc258cf6becdfd4d4f3b39efe5113d55ad70f108d897e68f422",
+        "trinity/trainer/verl/monkey_patch.py": "2cb2add5a3654270349280378f90a95239aa27c3d0a7193e6bb8e316523bae81",
+        "trinity/trainer/verl/workers.py": "30223c4dec14cc978489301a45e7ccead777f92df145f0c75b91bf7b36ba0bed"
+      }
+    },
+    {
+      "name": "verl",
+      "path": "verl_fork",
+      "url": "https://github.com/verl-project/verl.git",
+      "commit": "7aed6b230776f963fa09509c10d9c3a767d1102c",
+      "patch": "experiments/baselines/runtime/verl-compat.patch",
+      "patch_sha256": "ac6c8739858b1cc8b6b79bd6eff9746fa1c0ba461508214e1bdac97f41465397",
+      "patched_files": {
+        "verl/utils/seqlen_balancing.py": "1abf2decdfc5a89f9ba96d501bae2ea2c7a9aed6fc49ee6283e93a34d1f3fb33"
+      }
+    }
+  ]
+}

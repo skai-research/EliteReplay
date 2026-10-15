@@ -1,0 +1,16 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "elitereplay"
+version = "0.1.0"
+description = "Source-only BIRD experiments for EliteReplay"
+requires-python = ">=3.10"
+dependencies = ["PyYAML", "pyarrow", "pandas", "sqlglot==30.17.0"]
+
+[project.optional-dependencies]
+train = ["torch", "transformers", "vllm", "ray[default]", "datasets", "numpy", "pandas", "litellm"]
+
+[tool.setuptools.packages.find]
+where = ["src"]

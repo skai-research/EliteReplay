@@ -1,0 +1,23 @@
+[
+  {
+    "package": "flash-linear-attention",
+    "version": "0.5.2",
+    "file": "flash_linear_attention-0.5.2-py3-none-any.whl",
+    "url": "https://files.pythonhosted.org/packages/90/d2/2070e3cf2148c5cce99ca4876633c4b7b89ec085323600bd3d47aeacd306/flash_linear_attention-0.5.2-py3-none-any.whl",
+    "sha256": "dcf405d81f5426393b59037097aa700d0f4a841465d5028d5aa543f4502f2400"
+  },
+  {
+    "package": "fla-core",
+    "version": "0.5.2",
+    "file": "fla_core-0.5.2-py3-none-any.whl",
+    "url": "https://files.pythonhosted.org/packages/2d/ed/dfe19c4da779957eb6a42a26812f9b4e2280bf757a17a71933ff59ffcb98/fla_core-0.5.2-py3-none-any.whl",
+    "sha256": "5e830c85bad3d0d34677f98ac7074d08687a3756f0f0499d95ceb96eb6920761"
+  },
+  {
+    "package": "causal-conv1d",
+    "version": "1.7.0",
+    "file": "causal_conv1d-1.7.0.tar.gz",
+    "url": "https://files.pythonhosted.org/packages/f4/d1/eba27735f31bd5527d39a3c7f693e6ded7b844cab275db719a15ad37b6cd/causal_conv1d-1.7.0.tar.gz",
+    "sha256": "3202758494eaa7b597ce1c282dfa188889506bfcb92cad3c407d26736bfcd32b"
+  }
+]

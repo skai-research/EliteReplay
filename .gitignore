@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+artifacts/
+data/*
+!data/preprocess_bird.py
+external/
+*.jsonl
+!elite_archive/archive.jsonl
+*.sqlite
+*.pt
+*.safetensors

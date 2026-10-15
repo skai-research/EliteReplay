@@ -1,0 +1,15 @@
+{
+  "anonymized_copy": true,
+  "archive_sha256": "710cdbcd7a52d00497fc51cb0d077ad51c5de4ea7c281587d94e2b9d70357966",
+  "audit_summary_sha256": "9a27d358148086f515559376a9c03cd49cd5ee230eebbdebaff2bad7312b8948",
+  "aux_sha256": "30c18a95a96249adfa4eb2b7084f0fe97a56ff124f05d5005fffd6d788274c10",
+  "config_sha256": "4eb16cfc9318fd23b7810e00064919aa9900c8691a7c92e9828bde8d01e395cf",
+  "examples": 1500,
+  "integrity_pass": true,
+  "map_elites_sha256": "06cbb6d25a07c7accc2474aeb4d25fda9e382b087296ee85aa294ceaa20859c2",
+  "source_archive_sha256": "428995236dfde7b4afb7c97d0d0cbfbd5c61402d54f14d2a5176fb7c25dca350",
+  "source_map_elites_sha256": "b0c97c204a7363b12fa5458b9cd76d218b7ede59d7f4b05d08ff21af8ac69885",
+  "source_taxonomy_sha256": "763eb6d906f7e25bec0906a426a5ca35c0a40eb64fe5516c033fe7319356b89e",
+  "taxonomy_sha256": "128a7137b5cad824120151988c493111102eae7f5b392bdaaae062454f731952",
+  "train_sha256": "0c7e41650be5f169a06d4439d26fee8798744ccd53a6071712b7fcd432fdc37b"
+}
