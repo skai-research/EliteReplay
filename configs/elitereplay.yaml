@@ -71,7 +71,7 @@ offline:
   cell_descriptor: primary_coarse_v1
   attempt_aware: true
 runtime:
-  launcher: apptainer
+  launcher: native
   image: external/images/evorl-v080-vllm0202-cu130.sif
   trainer_gpus: 2
   rollout_gpus: 2

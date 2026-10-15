@@ -38,8 +38,8 @@ def validate(c):
                "training", "method_options", "offline", "runtime", "verifier"}
     if not isinstance(c, dict) or set(c) != allowed or c["schema_version"] != 1:
         raise ValueError(f"Expected schema_version=1 and exactly these top-level keys: {sorted(allowed)}")
-    if c["method"] not in METHODS or c["domain"] not in ("bird", "taco", "optmath"):
-        raise ValueError("Unknown baseline or domain")
+    if c["method"] not in METHODS or c["domain"] != "bird":
+        raise ValueError("This public training release supports BIRD and the listed baseline methods")
     fields = {
         "model": {"path", "revision", "max_prompt_tokens", "max_response_tokens", "enable_thinking"},
         "data": {"root", "train_questions", "archive_questions"},

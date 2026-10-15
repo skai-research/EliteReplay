@@ -1,0 +1,64 @@
+schema_version: 1
+domain: spider
+output_root: artifacts/evaluation
+data:
+  split: official_dev
+  release: Spider 1.0 dev exact DPH split; direct-SQL v1
+  source_file: data/evaluation/spider-dev-dph-v1/dph_spider_dev.jsonl
+  source_revision: fea6990642b072a59a1ecc653da31f9b876bd775
+  prepared_dir: data/evaluation/spider-direct-v1
+  expected_questions: 1034
+  training_data_root: data/bird
+models:
+  base:
+    path: external/hf-cache/hub/models--Qwen--Qwen3.5-4B-Base/snapshots/1001bb4d826a52d1f399e183466143f4da7b741b
+    checkpoint_marker: null
+  elitereplay:
+    path: models/elitereplay-bird
+    checkpoint_marker: null
+sampling:
+  samples_per_question: 128
+  k_values:
+  - 1
+  - 2
+  - 4
+  - 8
+  - 16
+  - 32
+  - 64
+  - 128
+  seed: 42000
+  temperature: 1.0
+  top_p: 0.95
+  top_k: -1
+  max_prompt_tokens: 16384
+  max_response_tokens: 4096
+  enable_thinking: false
+  questions_per_batch: 8
+  samples_per_block: 8
+runtime:
+  launcher: native
+  image: external/images/evorl-v080-vllm0202-cu130.sif
+  tensor_parallel_size: 1
+  gpu_memory_fraction: 0.8
+  max_num_seqs: 64
+  verifier_workers: 16
+  enforce_eager: false
+  enable_prefix_caching: true
+  overlap_verification: true
+  smoke_problem_ids:
+  - spider:official_dev:0
+  - spider:official_dev:455
+verifier:
+  bird_database_root: external/bird-data/dev_20240627/dev_databases
+  bird_evaluator_root: external/bird-mini-dev
+  bird_timeout_seconds: 30
+  taco_evaluator_root: external/TACO-evaluation
+  taco_image: external/images/dare-python-py311.sif
+  wall_timeout_seconds: 600
+  per_test_timeout_seconds: 2
+  cpu_seconds: 600
+  memory_bytes: 2147483648
+  max_response_bytes: 131072
+  spider_database_root: external/spider-data/spider-1.0-dev/database
+  spider_timeout_seconds: 15

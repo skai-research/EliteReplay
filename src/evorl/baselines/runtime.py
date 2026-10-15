@@ -159,8 +159,7 @@ def inputs(c, *, require_offline=True):
 
 def preflight(c, *, require_offline=True):
     errors = []
-    required = [path(c["model"]["path"]) / "config.json", path(c["model"]["path"]) / "tokenizer_config.json",
-                ROOT / "external/trinity-runtime", ROOT / "external/python-deps"]
+    required = [path(c["model"]["path"]) / "config.json", path(c["model"]["path"]) / "tokenizer_config.json"]
     if c["runtime"]["launcher"] == "apptainer":
         required.append(path(c["runtime"]["image"]))
         if not shutil.which("apptainer"):
@@ -210,94 +209,12 @@ def preflight(c, *, require_offline=True):
     return {"ready": not errors, "errors": errors, "input_sha256": files}
 
 
-def patch_actor_config(filename):
-    """Expose optimizer minibatch size only in a disposable runtime copy."""
-    text = filename.read_text()
-    before = '"ppo_mini_batch_size": cfg.buffer.train_batch_size,'
-    start = text.index("def _build_actor_config(")
-    end = text.index("def _build_ref_config(", start)
-    body = text[start:end]
-    if body.count(before) != 1:
-        raise RuntimeError("Pinned Trinity actor config changed; review minibatch patch")
-    body = body.replace(before, '"ppo_mini_batch_size": cfg.algorithm.policy_loss_fn_args.get("optimizer_batch_size", cfg.buffer.train_batch_size),')
-    body = body.replace('"use_torch_compile": True,', '"use_torch_compile": cfg.trainer.use_torch_compile,')
-    optimizer = '"optim": _build_optimizer_config(cfg.algorithm.optimizer, strategy, total_training_steps),'
-    if body.count(optimizer) != 1:
-        raise RuntimeError("Pinned Trinity optimizer builder changed; review memory setting")
-    # PyTorch's foreach AdamW allocates another parameter-sized temporary list.
-    # The scalar-tensor path uses the same AdamW update with lower peak memory.
-    body = body.replace(optimizer, '''"optim": {**_build_optimizer_config(cfg.algorithm.optimizer, strategy, total_training_steps),
-                  "override_optimizer_config": {"foreach": False, "eps": 1e-8}},''')
-    filename.write_text(text[:start] + body + text[end:])
 
 
-def patch_rollout_config(filename):
-    """Pass the log-probability mode exactly once, without mutating config.
-
-    Trinity defaults to processed sampling probabilities. The baseline suite
-    explicitly needs raw model probabilities, matching the trainer and the
-    DPH offline references. Removing our override would change the objective.
-    """
-    text = filename.read_text()
-    before = '                logprobs_mode="processed_logprobs",'
-    after = '''                logprobs_mode=self.config.extra_engine_args.get(
-                    "logprobs_mode", "processed_logprobs"
-                ),'''
-    extra = '                **self.config.extra_engine_args,'
-    filtered = '''                **{k: v for k, v in self.config.extra_engine_args.items()
-                   if k != "logprobs_mode"},'''
-    if text.count(before) != 1 or text.count(extra) != 1:
-        raise RuntimeError("Pinned Trinity rollout constructor changed; review logprobs patch")
-    text = text.replace(before, after).replace(extra, filtered)
-    # The pinned generate() path discarded vLLM's finish reason. A syntactically
-    # valid but unfinished program must not receive a success reward.
-    response = '                response_text=output.outputs[i].text,'
-    if text.count(response) != 1:
-        raise RuntimeError("Pinned Trinity response conversion changed; review truncation patch")
-    text = text.replace(response, response + '''
-                truncate_status=("response_truncated"
-                                 if output.outputs[i].finish_reason == "length" else None),''')
-    filename.write_text(text)
 
 
-def patch_launcher(filename):
-    """Propagate late trainer errors and bound teardown of failed actors."""
-    text = filename.read_text()
-    before = "            ray.wait(wait_ref, timeout=config.synchronizer.sync_timeout)"
-    if text.count(before) != 1:
-        raise RuntimeError("Pinned Trinity launcher changed; review completion handling")
-    text = text.replace(before, "            ray.get(wait_ref, timeout=config.synchronizer.sync_timeout)")
-    before = """            [explorer.shutdown.remote(), trainer.shutdown.remote()],
-            timeout=config.synchronizer.sync_timeout,"""
-    if text.count(before) != 1:
-        raise RuntimeError("Pinned Trinity launcher changed; review bounded teardown")
-    text = text.replace(before, """            [explorer.shutdown.remote(), trainer.shutdown.remote()],
-            timeout=min(120, config.synchronizer.sync_timeout),""")
-    filename.write_text(text)
 
 
-def patch_reference_policy(filename):
-    """Skip the generic reference pass only for our reference-free objectives.
-
-    DPH's preservation loss still receives its frozen reference probabilities
-    through replay. Those are independent of veRL's on-policy reference pass.
-    Retain the upstream behavior for any other loss or enabled KL objective.
-    """
-    text = filename.read_text()
-    before = "        self.use_reference_policy = self.algorithm.use_reference"
-    if text.count(before) != 1:
-        raise RuntimeError("Pinned Trinity reference setup changed; review reference-policy patch")
-    text = text.replace(before, before + '''
-        if (self.algorithm_config.policy_loss_fn == "evorl_baselines"
-                and self.algorithm_config.kl_loss_fn == "none"
-                and self.algorithm_config.kl_penalty_fn == "none"):
-            self.use_reference_policy = False''')
-    placeholder = "        with init_empty_weights():"
-    if text.count(placeholder) != 1:
-        raise RuntimeError("Pinned Trinity placeholder model changed; review CPU initialization")
-    text = text.replace(placeholder, '''        from evorl.baselines.kernels import placeholder_model_kernels
-        with placeholder_model_kernels(), init_empty_weights():''')
-    filename.write_text(text)
 
 
 def source_hashes(directory):
@@ -305,39 +222,10 @@ def source_hashes(directory):
             if f.is_file() and "__pycache__" not in f.parts and f.suffix != ".pyc"}
 
 
-def patch_logprobs(filename):
-    text = filename.read_text()
-    before = "        output = logprobs_from_logits_v2(logits, labels)"
-    if text.count(before) != 1:
-        raise RuntimeError("Pinned veRL logprob fallback changed; review memory patch")
-    filename.write_text(text.replace(before,
-        "        from evorl.baselines.logprobs import chunked_logprobs\n"
-        "        output = chunked_logprobs(logits, labels)"))
 
 
-def patch_singleton_logits(filename):
-    text = filename.read_text()
-    before = ("                    logits = torch.nested.narrow(logits, 1, starts, seq_lengths, layout=torch.jagged)\n"
-              "                    logits_rmpad = torch.cat([t for t in logits.unbind()])")
-    if text.count(before) != 1:
-        raise RuntimeError("Pinned veRL padded logit path changed; review singleton memory patch")
-    filename.write_text(text.replace(before,
-        "                    from evorl.baselines.logprobs import unpad_logits\n"
-        "                    logits_rmpad = unpad_logits(logits, seq_lengths)"))
 
 
-def patch_complete_batches(filename):
-    text = filename.read_text()
-    before = "            completed_count = len(statuses)"
-    if text.count(before) != 1 or "refusing to publish a partial batch" in text:
-        raise RuntimeError("Pinned Trinity finalization changed; review complete-batch guard")
-    filename.write_text(text.replace(before, '''            if self.config.algorithm.policy_loss_fn == "evorl_baselines":
-                failed = [s for s in statuses if not s.ok]
-                if failed:
-                    raise RuntimeError(
-                        f"Baseline rollout batch {batch_state.batch_id} has {len(failed)} failed tasks; "
-                        f"refusing to publish a partial batch. First error: {failed[0].message}")
-''' + before))
 
 
 def bundle(c, original_config, *, smoke=False, offline=False):
@@ -365,17 +253,10 @@ def bundle(c, original_config, *, smoke=False, offline=False):
             (ROOT / "Trinity-RFT/trinity", "Trinity-RFT/trinity"), (ROOT / "verl_fork/verl", "verl_fork/verl")):
         shutil.copytree(source, staging / destination, ignore=ignore)
     (staging / "plugins").mkdir()
-    shutil.copy2(ROOT / "plugins/EliteReplay_trinity.py", staging / "plugins/EliteReplay_trinity.py")
+    shutil.copy2(ROOT / "plugins/elitereplay_trinity.py", staging / "plugins/elitereplay_trinity.py")
     (staging / "plugin_entry").mkdir()
     (staging / "plugin_entry/baseline_suite.py").write_text("from evorl.baselines.integration import *\n")
     (staging / "verl_fork/verl/version/version").write_text("0.8.0\n")
-    patch_actor_config(staging / "Trinity-RFT/trinity/trainer/verl/config.py")
-    patch_rollout_config(staging / "Trinity-RFT/trinity/common/models/vllm_model.py")
-    patch_launcher(staging / "Trinity-RFT/trinity/cli/launcher.py")
-    patch_reference_policy(staging / "Trinity-RFT/trinity/trainer/verl/trainer.py")
-    patch_logprobs(staging / "verl_fork/verl/utils/torch_functional.py")
-    patch_singleton_logits(staging / "verl_fork/verl/workers/engine/fsdp/transformer_impl.py")
-    patch_complete_batches(staging / "Trinity-RFT/trinity/explorer/rollout_coordinator.py")
     if not offline:
         from . import kernels
         kernel_root = kernels.directory(c)

@@ -10,7 +10,7 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from evorl.baselines.config import load, offline_dir, offline_fingerprint, path
+from evorl.baselines.config import load, offline_dir, offline_fingerprint, path, fingerprint
 from evorl.baselines.data import sha256
 from evorl.baselines.replay import Replay
 from evorl.baselines.runtime import resolved
@@ -44,10 +44,20 @@ def stage(config_file: Path) -> dict:
     manifest = json.loads((data / "split_manifest.json").read_text())
     if manifest["domain"] != "bird" or manifest["archive_is_training_subset"] is not True:
         raise ValueError("Expected the paper's BIRD training/archive split")
-    for split, field in (("train", "train_sha256"), ("aux_search", "aux_sha256")):
-        digest = sha256(data / f"{split}.parquet")
-        if digest != manifest["parquet_sha256"][split] or digest != original[field]:
-            raise ValueError(f"{split} split does not match the archived BIRD questions")
+    # Compare ordered semantic records, not writer-version-dependent Parquet bytes.
+    import pyarrow.parquet as pq
+    identity = json.loads((ROOT / "data/bird_split_identity.json").read_text())
+    split_hashes = {}
+    for split in ("train", "aux_search", "validation"):
+        file = data / f"{split}.parquet"
+        records = pq.read_table(file).to_pylist()
+        expected = identity["splits"][split]
+        if ([r["extra_info"]["problem_id"] for r in records] != expected["problem_ids"]
+                or [fingerprint(r) for r in records] != expected["record_sha256"]):
+            raise ValueError(f"{split} records differ from the frozen paper split")
+        split_hashes[split] = sha256(file)
+        if split_hashes[split] != manifest["parquet_sha256"][split]:
+            raise ValueError(f"{split} manifest does not match its Parquet file")
     full_archive = json.loads(full_archive_file.read_text())
     if (full_archive["domain"] != "bird" or len(full_archive["problems"]) != 780
             or sum(len(cells) for cells in full_archive["problems"].values()) != 2708):
@@ -67,10 +77,10 @@ def stage(config_file: Path) -> dict:
     target = offline_dir(c)
     complete = {"archive_sha256": ARCHIVE_SHA256,
                 "audit_summary_sha256": original["audit_summary_sha256"],
-                "aux_sha256": original["aux_sha256"],
+                "aux_sha256": split_hashes["aux_search"],
                 "config_sha256": offline_fingerprint(c),
                 "examples": 1500, "integrity_pass": True,
-                "train_sha256": original["train_sha256"],
+                "train_sha256": split_hashes["train"],
                 "source_config_sha256": original["config_sha256"],
                 "source_archive_sha256": original["source_archive_sha256"]}
     destination = target / "archive.jsonl"

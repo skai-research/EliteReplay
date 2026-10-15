@@ -29,7 +29,7 @@ from evorl.EliteReplay.trinity_support import ON_POLICY_SOURCE, render_sft_with_
 
 # Register only this suite's entry plugin. Load the existing verified adapters
 # once under a distinct module name; don't scan historical baseline plugins.
-_spec = importlib.util.spec_from_file_location("evorl_baseline_domain_support", ROOT / "plugins/EliteReplay_trinity.py")
+_spec = importlib.util.spec_from_file_location("evorl_baseline_domain_support", ROOT / "plugins/elitereplay_trinity.py")
 support = importlib.util.module_from_spec(_spec)
 sys.modules[_spec.name] = support
 _spec.loader.exec_module(support)

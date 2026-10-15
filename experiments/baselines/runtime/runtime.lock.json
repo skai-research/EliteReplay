@@ -1,21 +1,53 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "repositories": [
     {
       "name": "trinity",
       "path": "Trinity-RFT",
       "url": "https://github.com/agentscope-ai/Trinity-RFT.git",
       "commit": "9a7e26e7d71b843d19e70344a2fe3b47efe2f418",
-      "patch": "experiments/baselines/runtime/trinity-compat.patch",
-      "patch_sha256": "d1b0012d06bf113bdb78cb529ac836f2b4f0b1d3852ca6da85128ecc69001679",
-      "patched_files": {
-        "trinity/cli/launcher.py": "08a7dc4409641ea7aea149ad6a9b15c357e285639c06cf7b318f6f9ca6699bad",
-        "trinity/common/models/vllm_model.py": "84e2af242371cc369352e2422f120258d43c20c3754fd9fcc7ff82dc05a5cf8b",
-        "trinity/common/models/vllm_worker.py": "712345f9184e76308020b372c8af9e74e44d7f45a0b09a3b632f6e6a9011c2a7",
-        "trinity/trainer/trainer.py": "d3a95625a5893285c56c78da40e4b105a959db91ad93543dd3c98dec01a03aa0",
-        "trinity/trainer/verl/losses.py": "0b535a1ba1e64cc258cf6becdfd4d4f3b39efe5113d55ad70f108d897e68f422",
-        "trinity/trainer/verl/monkey_patch.py": "2cb2add5a3654270349280378f90a95239aa27c3d0a7193e6bb8e316523bae81",
-        "trinity/trainer/verl/workers.py": "30223c4dec14cc978489301a45e7ccead777f92df145f0c75b91bf7b36ba0bed"
+      "overlay": "vendor/runtime/trinity",
+      "files": {
+        "trinity/cli/launcher.py": {
+          "upstream_sha256": "b2cae5a87a491370e8c9991f262e32fb42b62ff526e6ecd7586d1347fe4003c4",
+          "sha256": "6c16709cacc9109e8b5c4a68ad52c2221cd6c46b8b59303ce1dd16b1f0b5d9c1"
+        },
+        "trinity/common/models/vllm_model.py": {
+          "upstream_sha256": "ebe2e49d10937eeff2e82440e17c3b3ceb45a116a1ecf7fff36b33847f697cea",
+          "sha256": "788c0e8a355f9c918580c44f27040230a5e6a3061aa849ca819b5c9a6f7e64f7"
+        },
+        "trinity/common/models/vllm_worker.py": {
+          "upstream_sha256": "3d4e06f709a552a99f888405b15df84dd64d9666c644e7c8af73316f16a49137",
+          "sha256": "57130b2e7b3c6ac8f1c2eb8e4352e1d468c04cb60eff44303333cfacb8029cc5"
+        },
+        "trinity/explorer/rollout_coordinator.py": {
+          "upstream_sha256": "453d5fde52b3e0260cbaa37993d386f5bfc3587832bad4b88772cc4f14b62118",
+          "sha256": "f20cc92d41febe709cee5a14648b6143fa262bd61d629d3a0a7545ae506c243e"
+        },
+        "trinity/trainer/trainer.py": {
+          "upstream_sha256": "eb17d99fbd0efbe49820635036f2e38b8a056274f63109df7c68411079f884d9",
+          "sha256": "8af654908844525738bb5a492de549f3762210d50975ca464e4903947de3470b"
+        },
+        "trinity/trainer/verl/config.py": {
+          "upstream_sha256": "b1cdefef066adcacea0be4d1c7c18ea61c92f330c5d8f41839770bcaf331d022",
+          "sha256": "a96fa0ee6c7cf1da5aa6b9ff5426d261dcfb196fccff598dd8c57ffd4ef2e902"
+        },
+        "trinity/trainer/verl/losses.py": {
+          "upstream_sha256": "9a57132abe5c24a1d64e09f21d7d1009bf43ca546ad1e0c3465308ec5b149d67",
+          "sha256": "cbfdc2602697190494329d0b4aa4e84bb11d69f8df28410dda81deeb5d3798a1"
+        },
+        "trinity/trainer/verl/monkey_patch.py": {
+          "upstream_sha256": "ac990c6f760069749a55ece6285ab7db65d2a73b93065d7a1b8856542a87b81e",
+          "sha256": "a9d2ccb5106ca43a3a2ac08857fd935072e37515f74ed04ba675c315a9071dc3"
+        },
+        "trinity/trainer/verl/trainer.py": {
+          "upstream_sha256": "7af27c4d75ef0250b1b60567514fdbc344a5d923f8cd6fcffe86b83e2df3308a",
+          "sha256": "588b1127212ac52ebbda00925eb34fe1e0ec0a7a1b60e7c5a20bb7c3e06dfc38"
+        },
+        "trinity/trainer/verl/workers.py": {
+          "upstream_sha256": "ecf96564e615d5d2e29961efe3a2d330818fd1dfba0297cc5baace957352aac8",
+          "sha256": "15c143ae874b310a82047bc43603d60340cbe72eff27d9a93247c562a64f3331"
+        }
       }
     },
     {
@@ -23,11 +55,22 @@
       "path": "verl_fork",
       "url": "https://github.com/verl-project/verl.git",
       "commit": "7aed6b230776f963fa09509c10d9c3a767d1102c",
-      "patch": "experiments/baselines/runtime/verl-compat.patch",
-      "patch_sha256": "ac6c8739858b1cc8b6b79bd6eff9746fa1c0ba461508214e1bdac97f41465397",
-      "patched_files": {
-        "verl/utils/seqlen_balancing.py": "1abf2decdfc5a89f9ba96d501bae2ea2c7a9aed6fc49ee6283e93a34d1f3fb33"
+      "overlay": "vendor/runtime/verl",
+      "files": {
+        "verl/utils/seqlen_balancing.py": {
+          "upstream_sha256": "c114cd1a2908292763fbcae34788a1b010c262ded33712d3f035bc25ff8c2a06",
+          "sha256": "bfa9c7de10a02b1ded322d22be1456959b8ff2ed1a5cee189092e32b387df62c"
+        },
+        "verl/utils/torch_functional.py": {
+          "upstream_sha256": "cb37d045dec2161d637e2633032cc97c97334e5547cea62dace42630c9683259",
+          "sha256": "cf21ab2f8a14a451ac56dbc59aa4d0b29757f723c933f52893e398e6acd75e02"
+        },
+        "verl/workers/engine/fsdp/transformer_impl.py": {
+          "upstream_sha256": "b4f6243471f22c08dbfa472d13f708e8de609705ecff13f23713258160cf7902",
+          "sha256": "413b70b55212c9518ea27f6c6727d7811b2a72090d05cd8c4401b1e25f224114"
+        }
       }
     }
-  ]
+  ],
+  "description": "Complete modified upstream files. Apply only to the pinned commits; verify upstream and overlay hashes. Runtime adapters already included, no text patching at launch."
 }

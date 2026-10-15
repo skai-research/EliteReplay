@@ -1,0 +1,17 @@
+name: CPU contracts
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -e '.[test]' build
+      - run: pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cpu
+      - run: pytest -q
+      - run: elitereplay-metrics examples/scored_sql.jsonl --k 1 2 4 --bootstrap 0
+      - run: python -m build

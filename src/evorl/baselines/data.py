@@ -64,6 +64,8 @@ def bird_rows(c):
     helper = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(helper)
     raw_path = path(c["source_file"])
+    if sha256(raw_path) != helper.FILTERED_JSONL_SHA256:
+        raise ValueError("BIRD source differs from the pinned filtered release")
     raw = [json.loads(line) for line in raw_path.read_text().splitlines() if line.strip()]
     for i, row in enumerate(raw):
         row["filtered_row_id"] = i

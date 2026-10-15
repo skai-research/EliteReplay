@@ -1,0 +1,13 @@
+.git
+.venv*
+external
+artifacts
+Trinity-RFT
+verl_fork
+models
+data
+elite_archive
+build
+dist
+__pycache__
+.env*

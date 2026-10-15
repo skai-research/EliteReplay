@@ -1,0 +1,500 @@
+{
+  "UK": {
+    "bird": {
+      "Base": [
+        0.2528112777053455,
+        0.3883347213809816,
+        0.5544200333620289,
+        0.7466105486031389,
+        0.9642927918415684,
+        1.2160953580371006,
+        1.5167396534273654,
+        1.8826597131681877
+      ],
+      "GRPO": [
+        0.5425613184485006,
+        0.5946894986602875,
+        0.6404469454152324,
+        0.6805092321469246,
+        0.7153979726979636,
+        0.7459124466664233,
+        0.7737653129857278,
+        0.7998696219035202
+      ],
+      "SetPO": [
+        0.551433140482399,
+        0.6048439280507962,
+        0.6506178036619285,
+        0.6929686316309255,
+        0.7333435625676603,
+        0.7721110884079122,
+        0.8098362077794456,
+        0.848761408083442
+      ],
+      "DPH-F": [
+        0.5637477591264668,
+        0.627152088744367,
+        0.6808770698194997,
+        0.7278100306511549,
+        0.7702541985984669,
+        0.8117584924416587,
+        0.8544633427036747,
+        0.8996088657105606
+      ],
+      "MaxRL": [
+        0.5525484843546284,
+        0.6235843357646623,
+        0.682802810767461,
+        0.7365113436612835,
+        0.7871861753466359,
+        0.8345422734351521,
+        0.8813153615378618,
+        0.9295958279009127
+      ],
+      "EliteReplay": [
+        0.5252709419817471,
+        0.6709100769692748,
+        0.8137889845540823,
+        0.9576174365698774,
+        1.1078353408060397,
+        1.2704621505859486,
+        1.4510491656120272,
+        1.6571056062581486
+      ]
+    },
+    "spider": {
+      "Base": [
+        0.608626994680851,
+        0.8113201350919138,
+        1.027053549671135,
+        1.261013702336882,
+        1.5193907479945914,
+        1.806734146443431,
+        2.1325943893670876,
+        2.516441005802708
+      ],
+      "GRPO": [
+        0.7408123791102514,
+        0.7815340195175071,
+        0.8182693658396665,
+        0.8552749734460822,
+        0.8920348826319326,
+        0.9253702035193824,
+        0.953616459070289,
+        0.9787234042553191
+      ],
+      "SetPO": [
+        0.7588476184719536,
+        0.8182025217411171,
+        0.8711711263062625,
+        0.9200173640561883,
+        0.9670888257201482,
+        1.012905199370879,
+        1.0569762756186056,
+        1.0986460348162477
+      ],
+      "DPH-F": [
+        0.7614618592843327,
+        0.8142418356584774,
+        0.8587791596770908,
+        0.9005570566149375,
+        0.9416443908779729,
+        0.9821663426394958,
+        1.0210143402330538,
+        1.0551257253384914
+      ],
+      "MaxRL": [
+        0.7370270188588007,
+        0.81188103496855,
+        0.8793244089774078,
+        0.9405473243737164,
+        0.9965607358448186,
+        1.0479938768669563,
+        1.0983345152264952,
+        1.1518375241779497
+      ],
+      "EliteReplay": [
+        0.7855340304642167,
+        0.9321678815927749,
+        1.0756312304228417,
+        1.2180343041050574,
+        1.360874082926067,
+        1.509005211514464,
+        1.669697989065961,
+        1.8481624758220503
+      ]
+    }
+  },
+  "RETENTION": {
+    "bird": {
+      "GRPO": [
+        33.60245747518474,
+        1.4317948423630007
+      ],
+      "SetPO": [
+        34.57470374743102,
+        1.402843040797574
+      ],
+      "DPH-F": [
+        39.41621408894136,
+        1.8179830775285346
+      ],
+      "MaxRL": [
+        37.378070750798024,
+        1.4392071690935353
+      ],
+      "EliteReplay": [
+        62.3177183086274,
+        2.02825599064235
+      ]
+    },
+    "spider": {
+      "GRPO": [
+        29.692840971907053,
+        1.811092000680711
+      ],
+      "SetPO": [
+        33.97815907761452,
+        1.7636600980114743
+      ],
+      "DPH-F": [
+        37.06028566615342,
+        2.051939209059242
+      ],
+      "MaxRL": [
+        36.899447522058054,
+        2.0273685176662184
+      ],
+      "EliteReplay": [
+        60.33259508240365,
+        2.167971319619859
+      ]
+    }
+  },
+  "retention_questions": {
+    "bird": 825,
+    "spider": 562
+  },
+  "effective_diversity": [
+    {
+      "dataset": "bird",
+      "method": "base",
+      "label": "Base",
+      "questions": "1534",
+      "p_correct_and_different": "0.10004393523699041",
+      "ci95_low": "0.09225186095163178",
+      "ci95_high": "0.1082706218913293",
+      "p_both_correct": "0.15276132723875618",
+      "p_different_given_both_correct": "0.6549035482038471",
+      "p_correct_and_different_empirical_with_replacement": "0.09926234199295142"
+    },
+    {
+      "dataset": "bird",
+      "method": "grpo_s110",
+      "label": "GRPO",
+      "questions": "1534",
+      "p_correct_and_different": "0.12644453733741234",
+      "ci95_low": "0.11565826421968198",
+      "ci95_high": "0.13726277338015483",
+      "p_both_correct": "0.5073728268178505",
+      "p_different_given_both_correct": "0.24921424769719996",
+      "p_correct_and_different_empirical_with_replacement": "0.1254566893894638"
+    },
+    {
+      "dataset": "bird",
+      "method": "maxrl_s110",
+      "label": "MaxRL",
+      "questions": "1534",
+      "p_correct_and_different": "0.24434728823825314",
+      "ci95_low": "0.229498270902201",
+      "ci95_high": "0.258423553088652",
+      "p_both_correct": "0.5002366792339517",
+      "p_different_given_both_correct": "0.48846335820963727",
+      "p_correct_and_different_empirical_with_replacement": "0.2424383250488918"
+    },
+    {
+      "dataset": "bird",
+      "method": "dph_f_bird_fixed_s110",
+      "label": "DPH-F",
+      "questions": "1534",
+      "p_correct_and_different": "0.20756111152460244",
+      "ci95_low": "0.19442843168046586",
+      "ci95_high": "0.22085721713663514",
+      "p_both_correct": "0.5290293376382059",
+      "p_different_given_both_correct": "0.3923432913025892",
+      "p_correct_and_different_empirical_with_replacement": "0.2059395403408165"
+    },
+    {
+      "dataset": "bird",
+      "method": "setpo",
+      "label": "SetPO",
+      "questions": "1534",
+      "p_correct_and_different": "0.21822170243509326",
+      "ci95_low": "0.20544742801614843",
+      "ci95_high": "0.23127971723929522",
+      "p_both_correct": "0.5112429453387264",
+      "p_different_given_both_correct": "0.4268454057405319",
+      "p_correct_and_different_empirical_with_replacement": "0.21651684538481908"
+    },
+    {
+      "dataset": "bird",
+      "method": "qd_chord_mu005_s110",
+      "label": "EliteReplay",
+      "questions": "1534",
+      "p_correct_and_different": "0.25883059766038047",
+      "ci95_low": "0.24457004221568335",
+      "ci95_high": "0.2737297559452927",
+      "p_both_correct": "0.46299623238099147",
+      "p_different_given_both_correct": "0.5590339176829269",
+      "p_correct_and_different_empirical_with_replacement": "0.25680848361615877"
+    },
+    {
+      "dataset": "spider",
+      "method": "base",
+      "label": "Base",
+      "questions": "1034",
+      "p_correct_and_different": "0.2785018999680165",
+      "ci95_low": "0.26362448883626",
+      "ci95_high": "0.2928270139089844",
+      "p_both_correct": "0.4806309873741604",
+      "p_different_given_both_correct": "0.5794505707789687",
+      "p_correct_and_different_empirical_with_replacement": "0.2763261038745164"
+    },
+    {
+      "dataset": "spider",
+      "method": "maxrl_s110",
+      "label": "MaxRL",
+      "questions": "1034",
+      "p_correct_and_different": "0.2610532019601273",
+      "ci95_low": "0.2451281014883718",
+      "ci95_high": "0.27803911592470176",
+      "p_both_correct": "0.7008867548622428",
+      "p_different_given_both_correct": "0.37246131439798225",
+      "p_correct_and_different_empirical_with_replacement": "0.2590137238198138"
+    },
+    {
+      "dataset": "spider",
+      "method": "dph_f_bird_fixed_s110",
+      "label": "DPH-F",
+      "questions": "1034",
+      "p_correct_and_different": "0.23930756350995297",
+      "ci95_low": "0.22286872027730403",
+      "ci95_high": "0.2551060777797028",
+      "p_both_correct": "0.73693260348924",
+      "p_different_given_both_correct": "0.3247346668838857",
+      "p_correct_and_different_empirical_with_replacement": "0.23743797317003146"
+    },
+    {
+      "dataset": "spider",
+      "method": "qd_chord_mu005_s110",
+      "label": "EliteReplay",
+      "questions": "1034",
+      "p_correct_and_different": "0.31434951796402627",
+      "ci95_low": "0.2964077688559452",
+      "ci95_high": "0.3324038337518467",
+      "p_both_correct": "0.7301003099346624",
+      "p_different_given_both_correct": "0.43055661487413666",
+      "p_correct_and_different_empirical_with_replacement": "0.3118936623549323"
+    },
+    {
+      "dataset": "spider",
+      "method": "grpo_s110",
+      "label": "GRPO",
+      "questions": "1034",
+      "p_correct_and_different": "0.14000139451560334",
+      "ci95_low": "0.12803095943625403",
+      "ci95_high": "0.15265257511822447",
+      "p_both_correct": "0.7093430879620464",
+      "p_different_given_both_correct": "0.19736767283914688",
+      "p_correct_and_different_empirical_with_replacement": "0.13890763362095018"
+    },
+    {
+      "dataset": "spider",
+      "method": "setpo",
+      "label": "SetPO",
+      "questions": "1034",
+      "p_correct_and_different": "0.20062843631489968",
+      "ci95_low": "0.18548727492613365",
+      "ci95_high": "0.2157479720030765",
+      "p_both_correct": "0.7291103466394553",
+      "p_different_given_both_correct": "0.27516882353901134",
+      "p_correct_and_different_empirical_with_replacement": "0.19906102665618952"
+    }
+  ],
+  "provenance": {
+    "description": "Reference values from saved analysis exports, not a claim that the release was retrained or every paper figure regenerated. Retention stored in percent; ED CSV fields in probabilities.",
+    "uk_retention_descriptor": "structural_coarsened_v2",
+    "effective_diversity_descriptor": "sqlite_bound_alias_ast_v1",
+    "source_sha256": {
+      "paper_data.json": "b15cda12c782b77494f9ad22f3706cf4a0297148aa5996fcea20027db6f3dd18",
+      "export_paper_data.py": "6524380016740c579f3ab4295e3eb4161cc9373090f6fd915361027bfafeed1e",
+      "structural_descriptor_v2.py": "788ed6b0e96e8ce3235d03e4a77ad37cf72e03d36c9b3b12bfc46023450b99dd",
+      "effective_diversity/compute_ast.py": "0b2b08dd9aa447ef5417982c5d0e6682817bdde73f2f28816b58863224b22fe5",
+      "effective_diversity/ast_summary.csv": "bbb680c07b1c3b47313bb5a7de6a3199f516162c71403052bff4e63d4cfec11b",
+      "effective_diversity/ast_manifest.json": "c63370c78807d3f7cb0917b7299c43d4b9ec52a654001b4ab9be563f0489bcca"
+    },
+    "uk_retention_sources": [
+      {
+        "dataset": "bird",
+        "method": "base",
+        "run": "evaluation/pass128_20260929/results/bird/official_dev/base/main",
+        "checkpoint_step": "base"
+      },
+      {
+        "dataset": "bird",
+        "method": "grpo_s110",
+        "run": "evaluation/pass128_20260929/results/bird/official_dev/grpo_s110/main",
+        "checkpoint_step": "110"
+      },
+      {
+        "dataset": "bird",
+        "method": "maxrl_s110",
+        "run": "evaluation/pass128_20260929/results/bird/official_dev/maxrl_s110/main",
+        "checkpoint_step": "110"
+      },
+      {
+        "dataset": "bird",
+        "method": "dph_f_bird_fixed_s110",
+        "run": "evaluation/completed_s110_20260929/results/bird/official_dev/dph_f_bird_fixed_s110/main",
+        "checkpoint_step": "110"
+      },
+      {
+        "dataset": "bird",
+        "method": "setpo",
+        "run": "evaluation/v1/bird/official_dev/setpo/main",
+        "checkpoint_step": "100"
+      },
+      {
+        "dataset": "bird",
+        "method": "qd_chord_mu005_s110",
+        "run": "evaluation/pass128_20260929/results/bird/official_dev/qd_chord_mu005_s110/main",
+        "checkpoint_step": "110"
+      },
+      {
+        "dataset": "spider",
+        "method": "base",
+        "run": "evaluation/spider_pass128_20260929/results/spider/official_dev/base/main",
+        "checkpoint_step": "base"
+      },
+      {
+        "dataset": "spider",
+        "method": "maxrl_s110",
+        "run": "evaluation/spider_pass128_20260929/results/spider/official_dev/maxrl_s110/main",
+        "checkpoint_step": "110"
+      },
+      {
+        "dataset": "spider",
+        "method": "dph_f_bird_fixed_s110",
+        "run": "evaluation/completed_s110_20260929/results/spider/official_dev/dph_f_bird_fixed_s110/main",
+        "checkpoint_step": "110"
+      },
+      {
+        "dataset": "spider",
+        "method": "qd_chord_mu005_s110",
+        "run": "evaluation/spider_pass128_20260929/results/spider/official_dev/qd_chord_mu005_s110/main",
+        "checkpoint_step": "110"
+      },
+      {
+        "dataset": "spider",
+        "method": "grpo_s110",
+        "run": "evaluation/spider_pass128_20260929/results/spider/official_dev/grpo_s110/main",
+        "checkpoint_step": "110"
+      },
+      {
+        "dataset": "spider",
+        "method": "setpo",
+        "run": "evaluation/v1/spider/official_dev/setpo/main",
+        "checkpoint_step": "100"
+      }
+    ],
+    "effective_diversity_sources": [
+      {
+        "dataset": "bird",
+        "method": "base",
+        "run": "evaluation/pass128_20260929/results/bird/official_dev/base/main",
+        "summary_sha256": "d01a141589c7edc73eb4aa0b999b2d6df36500b2a7e5f35a8ace577cd6c89f6a",
+        "per_question_sha256": "937b43dae06ba20c3f2d3c3fc600725b34d79452a418c95a27945135d94300f3"
+      },
+      {
+        "dataset": "bird",
+        "method": "grpo_s110",
+        "run": "evaluation/pass128_20260929/results/bird/official_dev/grpo_s110/main",
+        "summary_sha256": "c8b2bfa0c234e21cd6749736b9fab4bba1600fb7257772f9c64e20c4894b928e",
+        "per_question_sha256": "d050b79a27a740dfaa665920f1a102625ded87cb652f9cdd9fd15b24b78eb1c5"
+      },
+      {
+        "dataset": "bird",
+        "method": "maxrl_s110",
+        "run": "evaluation/pass128_20260929/results/bird/official_dev/maxrl_s110/main",
+        "summary_sha256": "d04fd4f525c96e6037a8f80f7088f7dead9d985f1582b1936efed34e3d1db7d0",
+        "per_question_sha256": "8688090a427fab3a4b2b889155de626c467484b1e63c3bcd003d616f129e6bc8"
+      },
+      {
+        "dataset": "bird",
+        "method": "dph_f_bird_fixed_s110",
+        "run": "evaluation/completed_s110_20260929/results/bird/official_dev/dph_f_bird_fixed_s110/main",
+        "summary_sha256": "d7e12fa8b1f309079063d1f7b4b1efe0f58cb686547cadbe7411807690363aa7",
+        "per_question_sha256": "04f265f6ffbbb3fd969252c95d1c09665256f2f653c7f2be3a14ea7a7f7701d5"
+      },
+      {
+        "dataset": "bird",
+        "method": "setpo",
+        "run": "evaluation/v1/bird/official_dev/setpo/main",
+        "summary_sha256": "64fcfd8fbdc25d2a08432cfede690218761f0c29de56c181ad3da45f03baa3b8",
+        "per_question_sha256": "31985edbf0f2e63f13366fade5e7856021635c90fe6544b726be1ea670e63e0e"
+      },
+      {
+        "dataset": "bird",
+        "method": "qd_chord_mu005_s110",
+        "run": "evaluation/pass128_20260929/results/bird/official_dev/qd_chord_mu005_s110/main",
+        "summary_sha256": "b5180f2335f230454dc90e9c9b9822ebc1244efd1c35c9685d5305bb8889f62d",
+        "per_question_sha256": "f29b7537a6e262b278710f9f70bf4000bbf92016ae5f2578efde2aa74d6ce83b"
+      },
+      {
+        "dataset": "spider",
+        "method": "base",
+        "run": "evaluation/spider_pass128_20260929/results/spider/official_dev/base/main",
+        "summary_sha256": "41cca3353f67341bb85c052de99dadecb1a4d8d4685947adbcf2615df33f4f1f",
+        "per_question_sha256": "99ce91a175963baa1178b5fe53f77aa3d57a441f3edd1268ea70893ae2909951"
+      },
+      {
+        "dataset": "spider",
+        "method": "maxrl_s110",
+        "run": "evaluation/spider_pass128_20260929/results/spider/official_dev/maxrl_s110/main",
+        "summary_sha256": "429aed6ff23ae0c66300016762531b70cfde19b70eb3c72aea8c28b7428f0a40",
+        "per_question_sha256": "2ab3bfdf83fbc5f2da514305e4eadcf3ad0748066ea48062348ae9a43b7f5989"
+      },
+      {
+        "dataset": "spider",
+        "method": "dph_f_bird_fixed_s110",
+        "run": "evaluation/completed_s110_20260929/results/spider/official_dev/dph_f_bird_fixed_s110/main",
+        "summary_sha256": "0fa91dbb3950c8f3adcce04e332d9f9f7e6a4bf49cd92bb80d2aca828fabbe5f",
+        "per_question_sha256": "4520114e5ce27cb723546bbb206f5161d0bc638286236c29d67231f524c94c60"
+      },
+      {
+        "dataset": "spider",
+        "method": "qd_chord_mu005_s110",
+        "run": "evaluation/spider_pass128_20260929/results/spider/official_dev/qd_chord_mu005_s110/main",
+        "summary_sha256": "93956abb294286f54042942d0362839213c86be1f27e555c2d6a61c676a6fa0f",
+        "per_question_sha256": "8421a5eeef750d53d4aa1dffc9c7dcec1d37da7f2e7b2be1c86f8be5349f79c8"
+      },
+      {
+        "dataset": "spider",
+        "method": "grpo_s110",
+        "run": "evaluation/v1/spider/official_dev/grpo/main",
+        "summary_sha256": "821df805528fed47500f4bb1864f03ad07358d7735946a015a96cfe5bd8a1f3c",
+        "per_question_sha256": "b5d2f012be12084ee00345e16e005a6f7f2562348e2587a934db1018f837f474",
+        "source_model": "grpo"
+      },
+      {
+        "dataset": "spider",
+        "method": "setpo",
+        "run": "evaluation/v1/spider/official_dev/setpo/main",
+        "summary_sha256": "8ce4d7243492dbaacadc36d827549d037b75059652b01e168ed363618fe7fde4",
+        "per_question_sha256": "43e410b2adb64f54317d72aa6e11fa30f4dd3ad952cc3229ae0f702973fc467b",
+        "source_model": "setpo"
+      }
+    ],
+    "cohort_note": "Spider GRPO U@k/retention and effective-diversity references use different saved rollout runs. Labels alone do not establish checkpoint identity. The release CLI computes all metrics from the same supplied JSONL."
+  }
+}

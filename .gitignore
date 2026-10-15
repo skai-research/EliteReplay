@@ -10,3 +10,17 @@ external/
 *.sqlite
 *.pt
 *.safetensors
+Trinity-RFT/
+verl_fork/
+.venv*/
+*.egg-info/
+build/
+dist/
+models/
+.env
+.env.*
+!data/bird_split_identity.json
+!examples/*.jsonl
+
+# Temporary source trees created while building distributions.
+/elitereplay-*/

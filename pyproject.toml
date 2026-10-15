@@ -1,16 +1,35 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "elitereplay"
-version = "0.1.0"
-description = "Source-only BIRD experiments for EliteReplay"
-requires-python = ">=3.10"
-dependencies = ["PyYAML", "pyarrow", "pandas", "sqlglot==30.17.0"]
+version = "0.2.0"
+description = "Verified quality-diversity archives and supervised replay for text-to-SQL RL"
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+license = "Apache-2.0"
+license-files = ["LICENSE", "THIRD_PARTY_NOTICES.md"]
+authors = [{name = "Hanane Moussa"}]
+dependencies = ["PyYAML==6.0.2", "pyarrow==19.0.1", "pandas==2.2.3", "numpy==2.2.6", "sqlglot==30.17.0", "tqdm>=4.66,<5"]
 
 [project.optional-dependencies]
-train = ["torch", "transformers", "vllm", "ray[default]", "datasets", "numpy", "pandas", "litellm"]
+test = ["pytest==8.4.2"]
+data = ["huggingface-hub>=0.34,<2"]
+
+[project.scripts]
+elitereplay-metrics = "evorl.evaluation.diversity:main"
+
+[project.urls]
+Repository = "https://github.com/skai-research/EliteReplay"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+"evorl.baselines" = ["SETPO_LICENSE"]
+"evorl.evaluation.vendor" = ["DPH_LICENSE", "README.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "src"]

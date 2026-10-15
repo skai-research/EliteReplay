@@ -5,7 +5,7 @@ train_questions: 5000
 archive_questions: 1000
 validation_questions: 668
 output_dir: data/bird
-source_file: data/bird/raw/train-00000-of-00001.jsonl
+source_file: data/raw/bird/train-00000-of-00001.jsonl
 database_root: external/bird-data/train_databases
 heldout_databases:
   - image_and_language

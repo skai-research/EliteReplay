@@ -1,0 +1,1 @@
+DPH-RL sql_executor.py copied without changes from https://github.com/seamoke/DPH-RL at fea6990642b072a59a1ecc653da31f9b876bd775. SHA256 6bdc73aa82634867fee3ca80a26c92768bab0e171d803144702bd1a96f1bf1e5. Apache-2.0, see DPH_LICENSE. We call its result_eq and replace_cur_year; SQLite execution is isolated and read-only.

@@ -1,0 +1,8 @@
+{"dataset": "synthetic", "model": "base", "question_id": "example", "sample_id": 0, "sql": "SELECT a FROM t", "correct": true}
+{"dataset": "synthetic", "model": "base", "question_id": "example", "sample_id": 1, "sql": "SELECT a FROM t", "correct": true}
+{"dataset": "synthetic", "model": "base", "question_id": "example", "sample_id": 2, "sql": "SELECT a FROM t JOIN u ON t.id=u.id", "correct": true}
+{"dataset": "synthetic", "model": "base", "question_id": "example", "sample_id": 3, "sql": "", "correct": false}
+{"dataset": "synthetic", "model": "elitereplay", "question_id": "example", "sample_id": 0, "sql": "SELECT a FROM t", "correct": true}
+{"dataset": "synthetic", "model": "elitereplay", "question_id": "example", "sample_id": 1, "sql": "SELECT a FROM t JOIN u ON t.id=u.id", "correct": true}
+{"dataset": "synthetic", "model": "elitereplay", "question_id": "example", "sample_id": 2, "sql": "SELECT a FROM t WHERE EXISTS (SELECT 1 FROM u)", "correct": true}
+{"dataset": "synthetic", "model": "elitereplay", "question_id": "example", "sample_id": 3, "sql": "", "correct": false}
