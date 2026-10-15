@@ -22,7 +22,7 @@
         },
         "trinity/explorer/rollout_coordinator.py": {
           "upstream_sha256": "453d5fde52b3e0260cbaa37993d386f5bfc3587832bad4b88772cc4f14b62118",
-          "sha256": "f20cc92d41febe709cee5a14648b6143fa262bd61d629d3a0a7545ae506c243e"
+          "sha256": "c00e7860f448850b8b8f68d20b66112d4eb5d8b7d96ec77e31616f7d99e5553b"
         },
         "trinity/trainer/trainer.py": {
           "upstream_sha256": "eb17d99fbd0efbe49820635036f2e38b8a056274f63109df7c68411079f884d9",
@@ -42,7 +42,7 @@
         },
         "trinity/trainer/verl/trainer.py": {
           "upstream_sha256": "7af27c4d75ef0250b1b60567514fdbc344a5d923f8cd6fcffe86b83e2df3308a",
-          "sha256": "588b1127212ac52ebbda00925eb34fe1e0ec0a7a1b60e7c5a20bb7c3e06dfc38"
+          "sha256": "ce2e7d7354b63fbc82912bad3feb4686a42f284f54effeb47f7eeace067dffd5"
         },
         "trinity/trainer/verl/workers.py": {
           "upstream_sha256": "ecf96564e615d5d2e29961efe3a2d330818fd1dfba0297cc5baace957352aac8",
@@ -63,11 +63,11 @@
         },
         "verl/utils/torch_functional.py": {
           "upstream_sha256": "cb37d045dec2161d637e2633032cc97c97334e5547cea62dace42630c9683259",
-          "sha256": "cf21ab2f8a14a451ac56dbc59aa4d0b29757f723c933f52893e398e6acd75e02"
+          "sha256": "3f2401fbf5b4b05d5af0035e4c2080d0ff1a6819a95527e0b67fc1f3b879c4af"
         },
         "verl/workers/engine/fsdp/transformer_impl.py": {
           "upstream_sha256": "b4f6243471f22c08dbfa472d13f708e8de609705ecff13f23713258160cf7902",
-          "sha256": "413b70b55212c9518ea27f6c6727d7811b2a72090d05cd8c4401b1e25f224114"
+          "sha256": "9a981dfc6b41bbad9feee680df13152cc1a44acfcb188ce15852ecd2eae40782"
         }
       }
     }

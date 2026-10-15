@@ -7,7 +7,7 @@ from pathlib import Path
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
-from evorl.baselines.data import prepare
+from elitereplay.baselines.data import prepare
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)

@@ -18,7 +18,7 @@ from typing import Any, Mapping, Sequence
 
 import torch
 
-from evorl.EliteReplay.trinity_support import (
+from elitereplay.EliteReplay.trinity_support import (
     FROZEN_SFT_SOURCE,
     FROZEN_SFT_SOURCE_ID,
     ON_POLICY_SOURCE,
@@ -172,7 +172,7 @@ def _domain_adapter(domain: str, adapter_args: Mapping[str, Any]):
     domain = domain.lower().strip()
     if domain not in {"bird", "taco", "optmath"}:
         raise ValueError(f"unsupported EliteReplay domain: {domain!r}")
-    module = importlib.import_module(f"evorl.EliteReplay.{domain}")
+    module = importlib.import_module(f"elitereplay.EliteReplay.{domain}")
     class_name = {"bird": "BirdAdapter", "taco": "TacoAdapter", "optmath": "OptmathAdapter"}[domain]
     adapter_cls = getattr(module, class_name)
     return adapter_cls(**dict(adapter_args))

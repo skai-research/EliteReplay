@@ -19,7 +19,7 @@ test = ["pytest==8.4.2"]
 data = ["huggingface-hub>=0.34,<2"]
 
 [project.scripts]
-elitereplay-metrics = "evorl.evaluation.diversity:main"
+elitereplay-metrics = "elitereplay.evaluation.diversity:main"
 
 [project.urls]
 Repository = "https://github.com/skai-research/EliteReplay"
@@ -28,8 +28,8 @@ Repository = "https://github.com/skai-research/EliteReplay"
 where = ["src"]
 
 [tool.setuptools.package-data]
-"evorl.baselines" = ["SETPO_LICENSE"]
-"evorl.evaluation.vendor" = ["DPH_LICENSE", "README.md"]
+"elitereplay.baselines" = ["SETPO_LICENSE"]
+"elitereplay.evaluation.vendor" = ["DPH_LICENSE", "README.md"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

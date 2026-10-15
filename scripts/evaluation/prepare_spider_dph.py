@@ -139,7 +139,7 @@ def main():
         'files_sha256':files,'database_files':db_records,'validation':audit,
         'artifact_role':'Imported source data and original DPH prompts; dataset download only, no inference or job submission.',
         'format_note':'DPH README lists spider_dev.parquet; the pinned repository ships spider_dev.jsonl. Our parquet is a lossless local conversion.',
-        'protocol_note':'DPH prompts request reasoning and fenced SQL. Preserve them as source; do not silently identify them with EvoRL direct raw-SQL prompts. DPH cmp_method=spider uses order-aware result matching, distinct from BIRD set equality and from multi-database test-suite accuracy.'}
+        'protocol_note':'DPH prompts request reasoning and fenced SQL. Preserve them as source; do not silently identify them with EliteReplay direct raw-SQL prompts. DPH cmp_method=spider uses order-aware result matching, distinct from BIRD set equality and from multi-database test-suite accuracy.'}
     write_exact(OUT/'manifest.json',json_bytes(manifest))
     print(json.dumps({'output':str(OUT),'questions':len(rows),'databases':len(ids),'validation':audit},indent=2))
 

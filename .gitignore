@@ -16,7 +16,7 @@ verl_fork/
 *.egg-info/
 build/
 dist/
-models/
+/models/
 .env
 .env.*
 !data/bird_split_identity.json

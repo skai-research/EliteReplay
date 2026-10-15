@@ -9,7 +9,7 @@ import json
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'src'))
-from evorl.evaluation.config import digest
+from elitereplay.evaluation.config import digest
 
 
 def collect(runs, output, dataset):

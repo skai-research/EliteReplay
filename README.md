@@ -23,11 +23,11 @@ This project provides the archive builder, the released BIRD archive, EliteRepla
 
 | Component | What it provides | Where to start |
 | --- | --- | --- |
-| **Archive builder** | Strategy labeling, mutation, SQL verification, MAP-Elites insertion, and replay-set selection | [Search code](src/evorl/EliteReplay/) · [Build an archive](docs/training.md#3-choose-an-archive) |
+| **Archive builder** | Strategy labeling, mutation, SQL verification, MAP-Elites insertion, and replay-set selection | [Search code](src/elitereplay/EliteReplay/) · [Build an archive](docs/training.md#3-choose-an-archive) |
 | **Released BIRD archive** | 2,708 occupied cells across 780 questions, with 1,500 selected replay examples | [Archive files](elite_archive/) · [Import instructions](docs/training.md#use-the-released-archive) |
-| **Training** | EliteReplay, IID replay, GRPO, MaxRL, SetPO, and DPH-F objectives and configurations | [Training code](src/evorl/baselines/) · [Configs](configs/) · [Guide](docs/training.md) |
-| **SQL evaluation** | Resumable generation and execution checking on BIRD and Spider | [Evaluation code](src/evorl/evaluation/) · [Guide](docs/evaluation.md#generate-and-verify-sql) |
-| **Diversity metrics** | U@k, effective diversity, strategy retention, pass@k, and bootstrap intervals | [Metric implementation](src/evorl/evaluation/diversity.py) · [Definitions](docs/evaluation.md#definitions-and-protocols) |
+| **Training** | EliteReplay, IID replay, GRPO, MaxRL, SetPO, and DPH-F objectives and configurations | [Training code](src/elitereplay/baselines/) · [Configs](configs/) · [Guide](docs/training.md) |
+| **SQL evaluation** | Resumable generation and execution checking on BIRD and Spider | [Evaluation code](src/elitereplay/evaluation/) · [Guide](docs/evaluation.md#generate-and-verify-sql) |
+| **Diversity metrics** | U@k, effective diversity, strategy retention, pass@k, and bootstrap intervals | [Metric implementation](src/elitereplay/evaluation/diversity.py) · [Definitions](docs/evaluation.md#definitions-and-protocols) |
 
 ## Installation
 
@@ -80,7 +80,7 @@ This prepares 5,000 training questions, a 1,000-question archive subset, and 668
 
 ### 2. Choose an archive
 
-The [archive builder](src/evorl/EliteReplay/) samples initial SQL candidates, selects target strategies, and mutates verified parents. Each verified candidate enters the cell for the strategy and structure it actually uses. The final export selects examples across questions and occupied cells for replay.
+The [archive builder](src/elitereplay/EliteReplay/) samples initial SQL candidates, selects target strategies, and mutates verified parents. Each verified candidate enters the cell for the strategy and structure it actually uses. The final export selects examples across questions and occupied cells for replay.
 
 Use the released archive to start training:
 
@@ -109,7 +109,7 @@ python scripts/baselines/run.py --config configs/elitereplay.yaml train
 python scripts/baselines/run.py --config configs/elitereplay.yaml resume
 ```
 
-Edit [the EliteReplay config](configs/elitereplay.yaml) to set training parameters and output locations. The [objective](src/evorl/baselines/objective.py) combines GRPO with a response-mean supervised replay loss, using a default replay weight of 0.05. [Comparison configs](configs/) use the same runner for the included baselines.
+Edit [the EliteReplay config](configs/elitereplay.yaml) to set training parameters and output locations. The [objective](src/elitereplay/baselines/objective.py) combines GRPO with a response-mean supervised replay loss, using a default replay weight of 0.05. [Comparison configs](configs/) use the same runner for the included baselines.
 
 The [runtime integration](vendor/runtime/) includes complete modified Trinity/veRL source files, installed over pinned upstream versions. See the [training guide](docs/training.md) for environment setup, data preparation, checkpointing, and model export.
 

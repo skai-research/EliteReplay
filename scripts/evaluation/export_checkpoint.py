@@ -14,8 +14,8 @@ import subprocess
 import sys
 import zipfile
 
-from evorl.evaluation.config import atomic_json, sha256
-from evorl.evaluation.models import model_files
+from elitereplay.evaluation.config import atomic_json, sha256
+from elitereplay.evaluation.models import model_files
 
 
 def main():

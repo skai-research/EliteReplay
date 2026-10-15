@@ -262,7 +262,7 @@ class RolloutCoordinator:
                 clear_timeout_tasks=False,
                 return_partial_tasks=self.config.explorer.over_rollout.return_partial_tasks,
             )
-            if self.config.algorithm.policy_loss_fn == "evorl_baselines":
+            if self.config.algorithm.policy_loss_fn == "elitereplay_baselines":
                 failed = [s for s in statuses if not s.ok]
                 if failed:
                     raise RuntimeError(

@@ -7,9 +7,9 @@ import os
 from pathlib import Path
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / 'src'))
-from evorl.evaluation.config import load, selected, run_dir, atomic_json, digest, sha256
-from evorl.evaluation.data import prepare, read_prepared
-from evorl.evaluation.engine import run, summarize
+from elitereplay.evaluation.config import load, selected, run_dir, atomic_json, digest, sha256
+from elitereplay.evaluation.data import prepare, read_prepared
+from elitereplay.evaluation.engine import run, summarize
 
 
 def main():
@@ -34,7 +34,7 @@ def main():
     with (out / '.release-eval.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
         model = Path(c['models'][a.model]['path'])
-        from evorl.evaluation.models import model_files
+        from elitereplay.evaluation.models import model_files
         files = model_files(c['models'][a.model])
         # Hash every model file and the scorer sources before permitting cache reuse.
         sources = Path(__file__).resolve().parents[2] / 'src'

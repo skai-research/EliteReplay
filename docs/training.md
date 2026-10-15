@@ -93,3 +93,13 @@ PYTHONPATH="$PWD/verl_fork:$PWD/src" python scripts/evaluation/export_checkpoint
 ```
 
 Use the actual checkpoint suffix, not a renamed counter. Export hashes source shards and records provenance. This command creates a local HF-format model; it does not upload it. No model upload is part of this code release.
+
+## Python package and run names
+
+The Python package is `elitereplay`, and new training runs use the
+`elitereplay-baselines` checkpoint project directory. Environment overrides for
+the evaluation repository root use `ELITEREPLAY_REPO_ROOT`.
+
+When upgrading an existing installation, reinstall with `pip install -e .`.
+Use a fresh runtime checkout and output root after changing package or runtime
+versions; existing frozen run bundles should continue with their original code.

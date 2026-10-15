@@ -9,8 +9,8 @@ licenses or terms attached to datasets, model weights, or third-party code.
 | --- | --- | --- |
 | Trinity-RFT modified files | agentscope-ai/Trinity-RFT; commit and hashes in `experiments/baselines/runtime/runtime.lock.json` | `vendor/runtime/trinity/LICENSE` |
 | veRL modified files | verl-project/verl; commit and hashes in the same lock | `vendor/runtime/verl/LICENSE` |
-| SetPO reference implementation | chenyili0818/SetPO; revision in `experiments/baselines/upstream.lock.json` | `src/evorl/baselines/SETPO_LICENSE` |
-| DPH SQL comparison code | seamoke/DPH-RL at `fea6990642b072a59a1ecc653da31f9b876bd775` | `src/evorl/evaluation/vendor/DPH_LICENSE` |
+| SetPO reference implementation | chenyili0818/SetPO; revision in `experiments/baselines/upstream.lock.json` | `src/elitereplay/baselines/SETPO_LICENSE` |
+| DPH SQL comparison code | seamoke/DPH-RL at `fea6990642b072a59a1ecc653da31f9b876bd775` | `src/elitereplay/evaluation/vendor/DPH_LICENSE` |
 
 The baseline provenance lock also records the public GRPO, MaxRL, DPH-RL, and
 CHORD reference implementations. Runtime overlays are distinct from

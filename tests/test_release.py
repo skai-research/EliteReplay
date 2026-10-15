@@ -7,9 +7,9 @@ import subprocess
 import shutil
 
 import pytest
-from evorl.baselines.config import load, trinity_config
-from evorl.evaluation.diversity import evaluate, no_hit
-from evorl.analysis.sql_ast_modes import bound_alias_ast_key
+from elitereplay.baselines.config import load, trinity_config
+from elitereplay.evaluation.diversity import evaluate, no_hit
+from elitereplay.analysis.sql_ast_modes import bound_alias_ast_key
 
 ROOT = Path(__file__).resolve().parents[1]
 

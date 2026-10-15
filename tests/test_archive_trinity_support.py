@@ -7,7 +7,7 @@ import sys
 import pytest
 import yaml
 
-from evorl.EliteReplay.trinity_support import (
+from elitereplay.EliteReplay.trinity_support import (
     UniformProblemNicheArchive,
     render_sft_with_terminal_eos,
 )

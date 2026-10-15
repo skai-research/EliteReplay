@@ -8,14 +8,14 @@ from typing import Any, Mapping, Sequence
 
 import pytest
 
-from evorl.EliteReplay.providers import (
+from elitereplay.EliteReplay.providers import (
     BedrockConverseChatProvider,
     CachedStrategyLabeler,
     JsonRequestCache,
     MetadataBatchExhaustedError,
     PromptedStrategyLabeler,
 )
-from evorl.EliteReplay.schema import GenerationResponse, StrategyLabel, Taxonomy
+from elitereplay.EliteReplay.schema import GenerationResponse, StrategyLabel, Taxonomy
 
 
 class ScriptedMetadataProvider:

@@ -2,10 +2,10 @@ import copy, hashlib, json, math, sqlite3
 from pathlib import Path
 from types import SimpleNamespace
 import pytest
-from evorl.evaluation.config import ROOT, atomic_json, digest, load, selected, sha256
-from evorl.evaluation.data import question_key
-from evorl.evaluation.engine import files_for, pass_at_k, run, sample_seed, score_sample, summarize
-from evorl.evaluation.models import model_files
+from elitereplay.evaluation.config import ROOT, atomic_json, digest, load, selected, sha256
+from elitereplay.evaluation.data import question_key
+from elitereplay.evaluation.engine import files_for, pass_at_k, run, sample_seed, score_sample, summarize
+from elitereplay.evaluation.models import model_files
 
 @pytest.fixture
 def config(tmp_path):
@@ -194,7 +194,7 @@ def test_incomplete_128_evaluation_cannot_report_64_as_complete(config,items,tmp
 def test_async_queue_persists_later_block_before_slow_first_block(tmp_path):
     from concurrent.futures import ThreadPoolExecutor
     from threading import Event
-    from evorl.evaluation.engine import VerificationQueue
+    from elitereplay.evaluation.engine import VerificationQueue
     release=Event()
     class V(FakeVerifier):
         def verify(self,item,response):

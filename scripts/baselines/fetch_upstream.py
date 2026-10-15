@@ -34,7 +34,7 @@ def check(clone=False):
         if git(directory, "remote", "get-url", "origin").removesuffix(".git") != record["url"].removesuffix(".git"):
             raise ValueError(f"Unexpected origin: {directory}")
         if git(directory, "status", "--porcelain", "--untracked-files=no"):
-            raise ValueError(f"Modified original source: {directory}; keep adaptations in EvoRL")
+            raise ValueError(f"Modified original source: {directory}; keep adaptations in EliteReplay")
         for filename, expected in record["files"].items():
             if hashlib.sha256((directory / filename).read_bytes()).hexdigest() != expected:
                 raise ValueError(f"Source hash mismatch: {directory / filename}")

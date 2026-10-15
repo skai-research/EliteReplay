@@ -38,7 +38,7 @@ sampling:
   samples_per_block: 8
 runtime:
   launcher: native
-  image: external/images/evorl-v080-vllm0202-cu130.sif
+  image: external/images/elitereplay-v080-vllm0202-cu130.sif
   tensor_parallel_size: 1
   gpu_memory_fraction: 0.8
   max_num_seqs: 64

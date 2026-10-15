@@ -68,7 +68,7 @@ offline:
   verifier_workers: 16
 runtime:
   launcher: native
-  image: external/images/evorl-v080-vllm0202-cu130.sif
+  image: external/images/elitereplay-v080-vllm0202-cu130.sif
   trainer_gpus: 2
   rollout_gpus: 2
   max_tokens_per_gpu: 24576

@@ -18,7 +18,7 @@ launch-time transformations: Qwen3.5/vLLM compatibility, mixed-source loss field
 optimizer minibatch control, raw log probabilities and truncation propagation,
 reference-policy handling, memory-bounded logits, complete rollout-batch checks,
 and error propagation. The actual EliteReplay objective and replay sampler live
-in `src/evorl/baselines`; the overlays support their framework integration.
+in `src/elitereplay/baselines`; the overlays support their framework integration.
 
 The run bundle copies these already reviewed sources. It does not use
 `git apply` or text substitutions at training launch. This keeps the upstream

@@ -253,7 +253,7 @@ class VERLTrainer(TrainEngineWrapper):
         # if lora is enabled, use ref in actor
         self.ref_in_actor = lora_rank > 0 or self.config.model.lora_adapter_path is not None
         self.use_reference_policy = self.algorithm.use_reference
-        if (self.algorithm_config.policy_loss_fn == "evorl_baselines"
+        if (self.algorithm_config.policy_loss_fn == "elitereplay_baselines"
                 and self.algorithm_config.kl_loss_fn == "none"
                 and self.algorithm_config.kl_penalty_fn == "none"):
             self.use_reference_policy = False
@@ -295,7 +295,7 @@ class VERLTrainer(TrainEngineWrapper):
         hf_config = transformers.AutoConfig.from_pretrained(
             local_path, trust_remote_code=trust_remote_code
         )
-        from evorl.baselines.kernels import placeholder_model_kernels
+        from elitereplay.baselines.kernels import placeholder_model_kernels
         with placeholder_model_kernels(), init_empty_weights():
             self.empty_model = transformers.AutoModel.from_config(
                 hf_config, trust_remote_code=trust_remote_code

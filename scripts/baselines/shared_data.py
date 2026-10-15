@@ -6,8 +6,8 @@ from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
-from evorl.baselines.config import ROOT
-from evorl.baselines.shared_data import materialize_domain, verify_domain
+from elitereplay.baselines.config import ROOT
+from elitereplay.baselines.shared_data import materialize_domain, verify_domain
 
 
 if __name__ == "__main__":

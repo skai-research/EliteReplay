@@ -39,3 +39,11 @@ when checked against their own recorded source cohorts. A Spider GRPO cohort mis
 historical U@k/retention and ED source records and is documented in
 `reproducibility.md`; it is not hidden by changing the scorer. This spot check
 is not a full rerun of the 1,534/1,034-question benchmark analyses.
+
+The package rename was checked from a clean export of the Git index: 96 tests
+passed in the recorded container, with the Git fixture passing separately on
+the host. The source distribution and wheel built successfully. An isolated
+wheel install ran the metric CLI and both SQL verifier subprocesses on correct
+and incorrect queries. All six training configurations loaded with the renamed
+Trinity registrations. The clean export includes every runtime overlay file;
+the model-weights ignore rule applies only to the top-level model directory.

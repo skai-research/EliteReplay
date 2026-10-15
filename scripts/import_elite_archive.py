@@ -10,10 +10,10 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
-from evorl.baselines.config import load, offline_dir, offline_fingerprint, path, fingerprint
-from evorl.baselines.data import sha256
-from evorl.baselines.replay import Replay
-from evorl.baselines.runtime import resolved
+from elitereplay.baselines.config import load, offline_dir, offline_fingerprint, path, fingerprint
+from elitereplay.baselines.data import sha256
+from elitereplay.baselines.replay import Replay
+from elitereplay.baselines.runtime import resolved
 
 ARCHIVE_SHA256 = "710cdbcd7a52d00497fc51cb0d077ad51c5de4ea7c281587d94e2b9d70357966"
 TAXONOMY_SHA256 = "128a7137b5cad824120151988c493111102eae7f5b392bdaaae062454f731952"

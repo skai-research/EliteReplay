@@ -1,2 +1,2 @@
 # Preserve the byte-identical, hash-pinned upstream SQL comparator.
-src/evorl/evaluation/vendor/dph_sql_executor.py -whitespace
+src/elitereplay/evaluation/vendor/dph_sql_executor.py -whitespace

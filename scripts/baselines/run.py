@@ -8,8 +8,8 @@ import sys
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
-from evorl.baselines.config import DPH_METHODS, load, plan, run_dir, offline_dir, trinity_config
-from evorl.baselines.runtime import (resolved, preflight, bundle, launch, reconcile,
+from elitereplay.baselines.config import DPH_METHODS, load, plan, run_dir, offline_dir, trinity_config
+from elitereplay.baselines.runtime import (resolved, preflight, bundle, launch, reconcile,
                                     refresh_failed_runtime, require_completed_smoke,
                                     migrate_performance_runtime, migrate_batch_timeout)
 

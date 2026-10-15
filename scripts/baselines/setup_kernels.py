@@ -14,8 +14,8 @@ import json
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "src"))
-from evorl.baselines.kernels import DEFAULT_DIRECTORY, LOCK, check, record_build
-from evorl.baselines.data import sha256
+from elitereplay.baselines.kernels import DEFAULT_DIRECTORY, LOCK, check, record_build
+from elitereplay.baselines.data import sha256
 
 
 def main():
@@ -54,7 +54,7 @@ def main():
                     "--target", str(root / "site-packages"), *packages], env=env, check=True)
     # A fresh process ensures imports see the newly installed packages.
     env["PYTHONPATH"] = str(root / "site-packages") + ":" + str(ROOT / "src")
-    subprocess.run([sys.executable, "-c", "import sys; from evorl.baselines.kernels import record_build; "
+    subprocess.run([sys.executable, "-c", "import sys; from elitereplay.baselines.kernels import record_build; "
                     "record_build(sys.argv[1])", str(root)], env=env, check=True)
     print(json.dumps({"status": "installed", "directory": str(root)}))
 

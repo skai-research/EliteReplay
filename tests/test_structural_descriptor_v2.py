@@ -1,4 +1,4 @@
-from evorl.analysis.structural_descriptor_v2 import features as f
+from elitereplay.analysis.structural_descriptor_v2 import features as f
 
 def test_filter_merge():
     assert f('select a from t where a = (select max(a) from u)') == f('select a from t where a in (select max(a) from u)')
