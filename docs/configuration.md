@@ -40,7 +40,6 @@ Inspect it before launching:
 elitereplay config --config configs/training/my-run.yaml
 elitereplay config --config configs/training/my-run.yaml --plan
 elitereplay train --config configs/training/my-run.yaml --check
-elitereplay train --config configs/training/my-run.yaml --quick-check
 elitereplay train --config configs/training/my-run.yaml
 ```
 

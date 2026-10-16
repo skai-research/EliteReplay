@@ -10,14 +10,14 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 from elitereplay.training.config import DPH_METHODS, load, plan, run_dir, offline_dir, trinity_config
 from elitereplay.training.runtime import (resolved, preflight, bundle, launch, reconcile,
-                                    refresh_failed_runtime, require_completed_quick_check,
+                                    refresh_failed_runtime,
                                     migrate_performance_runtime, migrate_batch_timeout)
 
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--config", type=Path, required=True)
-    parser.add_argument("action", choices=("plan", "check", "prepare", "prepare-seeds", "quick-check", "train", "resume", "refresh-runtime", "migrate-runtime", "migrate-recovery-runtime", "migrate-batch-timeout", "stress-runtime"))
+    parser.add_argument("action", choices=("plan", "check", "prepare", "prepare-seeds", "train", "resume", "refresh-runtime", "migrate-runtime", "migrate-recovery-runtime", "migrate-batch-timeout", "stress-runtime"))
     args = parser.parse_args()
     c = resolved(load(args.config))
     if args.action == "prepare-seeds" and c["method"] != "EliteReplay":
@@ -50,19 +50,17 @@ def main():
         if args.action == "migrate-batch-timeout":
             print(json.dumps(migrate_batch_timeout(c), indent=2), flush=True)
             return
-        offline, quick_check = args.action in ("prepare", "prepare-seeds"), args.action == "quick-check"
+        offline = args.action in ("prepare", "prepare-seeds")
         if offline and c["method"] not in ("EliteReplay", "IID_Replay", *DPH_METHODS):
             print("No offline preparation required for this method.")
             return
-        directory = bundle(c, args.config, quick_check=quick_check, offline=offline)
+        directory = bundle(c, args.config, offline=offline)
         if args.action == "stress-runtime":
             launch(c, directory, stress=True)
             return
-        if not offline and not quick_check:
-            require_completed_quick_check(c, directory)
         trinity = yaml.safe_load((directory / "trinity.yaml").read_text())
         job = Path(trinity["checkpoint_root_dir"]) / trinity["project"] / trinity["group"] / trinity["name"]
-        if args.action == "resume" or (quick_check and job.exists()):
+        if args.action == "resume":
             result = reconcile(c, trinity)
             print(json.dumps(result, indent=2), flush=True)
             if result["status"] == "complete":

@@ -88,12 +88,11 @@ def parser():
     )
     train.add_argument("--config", type=Path)
     flags = train.add_mutually_exclusive_group()
-    for name in ["quick-check", "resume", "check", "prepare"]:
+    for name in ["resume", "check", "prepare"]:
         flags.add_argument(
             "--" + name,
             action="store_true",
             help={
-                "quick-check": "Run two training iterations",
                 "resume": "Resume a complete checkpoint",
                 "check": "Check inputs without launching training",
                 "prepare": "Prepare replay for IID/DPH baselines",
@@ -107,11 +106,6 @@ def parser():
     flags = evaluate.add_mutually_exclusive_group()
     flags.add_argument("--prepare", action="store_true")
     flags.add_argument("--summarize", action="store_true")
-    flags.add_argument(
-        "--quick-check",
-        action="store_true",
-        help="Check two questions with two samples each in a separate output directory",
-    )
     for name, desc in [
         ("metrics", "Compute pass@k and diversity from scored samples"),
         ("rollouts", "Convert verified rollout blocks to scored JSONL"),
@@ -205,7 +199,7 @@ def main(argv=None):
             action = next(
                 (
                     name
-                    for name in ["quick-check", "resume", "check", "prepare"]
+                    for name in ["resume", "check", "prepare"]
                     if getattr(args, name.replace("-", "_"))
                 ),
                 "train",
@@ -222,7 +216,7 @@ def main(argv=None):
             action = (
                 "prepare"
                 if args.prepare
-                else "summarize" if args.summarize else "quick-check" if args.quick_check else "run"
+                else "summarize" if args.summarize else "run"
             )
             script(
                 "evaluation/run.py",

@@ -68,16 +68,3 @@ Output probabilities are in [0,1]; multiply by 100 to display percentages. U@k i
 The saved Spider GRPO reference values span two rollout cohorts; see the explicit
 source records and `docs/reproducibility.md`. Use one chosen cohort per model
 when computing a new comparison.
-
-## Quick GPU check
-
-After preparing the full benchmark and exporting a checkpoint, check generation
-and verification before starting the full evaluation:
-
-```bash
-elitereplay evaluate --config configs/evaluation/bird.yaml --model elitereplay --quick-check
-```
-
-This evaluates two questions with two samples each, writes to a separate
-`quick-check/` directory, and marks the result as diagnostic. Repeating the command
-resumes its saved attempts. It cannot fill or overwrite the full `main/` run.

@@ -129,17 +129,6 @@ def read_scores(scored, generated, count):
     return value["scores"]
 
 
-def evaluation_items(c, items, quick_check):
-    if not quick_check:
-        return items
-    ids = c["runtime"].get("quick_check_problem_ids")
-    if ids is None:
-        return items[:2]
-    by_id = {item["problem_id"]: item for item in items}
-    if any(pid not in by_id for pid in ids):
-        raise ValueError("Quick check problem IDs must belong to the prepared official evaluation set")
-    return [by_id[pid] for pid in ids]
-
 
 class VerificationQueue:
     """Bound candidate work and persist ready blocks without FIFO barriers."""
@@ -197,18 +186,13 @@ class VerificationQueue:
                 'elapsed_seconds': time.monotonic() - self.started}
 
 
-def run(c, name, items, output, *, quick_check=False, quick_check_samples=2, num_shards=1, shard_index=0,
+def run(c, name, items, output, *, num_shards=1, shard_index=0,
         generator_factory=Generator, verifier=None):
     output = Path(output)
     verifier = verifier or adapter(c, output)
-    if quick_check_samples not in (2, 64, 128):
-        raise ValueError("Quick checks support 2, 64 or 128 samples per question")
-    n = quick_check_samples if quick_check else c["sampling"]["samples_per_question"]
-    items = evaluation_items(c, items, quick_check)
+    n = c["sampling"]["samples_per_question"]
     if num_shards < 1 or not 0 <= shard_index < num_shards:
         raise ValueError("Invalid evaluation shard")
-    if quick_check and num_shards != 1:
-        raise ValueError("Diagnostic quick checks cannot be sharded")
     width = min(n, c["sampling"]["samples_per_block"])
     generator = None
     qbatch = c["sampling"]["questions_per_batch"]
@@ -267,20 +251,19 @@ def run(c, name, items, output, *, quick_check=False, quick_check_samples=2, num
                 print(json.dumps({"question_indices": [index for index, _ in group],
                                   "samples_through": start + count, "total_questions": len(items),
                                   "shard_index": shard_index, "num_shards": num_shards,
-                                  "quick_check": quick_check, "verification_queue": queue.report()}), flush=True)
+                                  "verification_queue": queue.report()}), flush=True)
                 progress.update()
         queue.finish()
         atomic_json(output / f'verification_queue.shard-{shard_index:03d}.json', queue.report())
     if num_shards > 1:
         return {"status": "shard_complete", "shard_index": shard_index,
                 "num_shards": num_shards, "questions": len(shard_items)}
-    return summarize(c, name, items, output, quick_check=quick_check, quick_check_samples=quick_check_samples)
+    return summarize(c, name, items, output)
 
 
-def summarize(c, name, items, output, *, quick_check=False, quick_check_samples=2):
+def summarize(c, name, items, output):
     output = Path(output)
-    items = evaluation_items(c, items, quick_check)
-    n = quick_check_samples if quick_check else c["sampling"]["samples_per_question"]
+    n = c["sampling"]["samples_per_question"]
     width = min(n, c["sampling"]["samples_per_block"])
     ks = [k for k in KS if k <= n]
     tasks, errors, truncated = [], Counter(), 0
@@ -302,9 +285,9 @@ def summarize(c, name, items, output, *, quick_check=False, quick_check_samples=
         correct = sum(outcomes)
         tasks.append({"problem_id": item["problem_id"], "n": n, "correct": correct,
             "pass_at_k": {str(k): pass_at_k(n, correct, k) for k in ks}, "extra_info": item["extra_info"]})
-    if not tasks or (not quick_check and len(tasks) != c["data"]["expected_questions"]):
+    if not tasks or len(tasks) != c["data"]["expected_questions"]:
         raise ValueError("Refusing to report an incomplete evaluation split")
-    result = {"status": "quick_check_complete" if quick_check else "complete", "domain": c["domain"],
+    result = {"status": "complete", "domain": c["domain"],
         "split": c["data"]["split"], "release": c["data"]["release"], "model": name,
         "questions": len(tasks), "samples_per_question": n, "total_samples": n * len(tasks),
         "pass_at_k": {str(k): sum(t["pass_at_k"][str(k)] for t in tasks) / len(tasks) for k in ks},
@@ -317,7 +300,7 @@ def summarize(c, name, items, output, *, quick_check=False, quick_check_samples=
     if manifest.exists():
         result["bundle_manifest_sha256"] = sha256(manifest)
     extension = output / "extension.json"
-    if extension.exists() and not quick_check:
+    if extension.exists():
         provenance = json.loads(extension.read_text())
         if provenance["config_sha256"] != digest(c):
             raise ValueError("Extension provenance does not match evaluation configuration")
@@ -327,7 +310,7 @@ def summarize(c, name, items, output, *, quick_check=False, quick_check_samples=
     atomic_json(output / "per_question.json", tasks)
     atomic_json(output / "summary.json", result)
     lines = [f"# {c['domain']} / {c['data']['split']} / {name}", "",
-        "DIAGNOSTIC CHECK ONLY" if quick_check else "Complete main evaluation", "",
+        "Complete main evaluation", "",
         f"{len(tasks)} questions; {n} samples/question; {truncated} truncated samples (counted as failures).", "",
         "| k | pass@k (%) |", "| --- | ---: |"]
     lines += [f"| {k} | {100 * result['pass_at_k'][str(k)]:.2f} |" for k in ks]

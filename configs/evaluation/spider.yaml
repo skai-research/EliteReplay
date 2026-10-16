@@ -45,9 +45,6 @@ runtime:
   enforce_eager: false
   enable_prefix_caching: true
   overlap_verification: true
-  quick_check_problem_ids:
-  - spider:official_dev:0
-  - spider:official_dev:455
 verifier:
   bird_database_root: external/bird-data/dev_20240627/dev_databases
   bird_evaluator_root: external/bird-mini-dev

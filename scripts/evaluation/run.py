@@ -16,7 +16,7 @@ def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--config', type=Path, required=True)
     p.add_argument('--model', default='base')
-    p.add_argument('action', choices=['prepare', 'run', 'quick-check', 'summarize'])
+    p.add_argument('action', choices=['prepare', 'run', 'summarize'])
     a = p.parse_args()
     c = selected(load(a.config), a.model)
     if c['domain'] not in ('bird', 'spider'):
@@ -29,8 +29,7 @@ def main():
     if a.action == 'prepare':
         print(json.dumps(prepare(c), indent=2)); return
     items, manifest = read_prepared(c)
-    quick_check = a.action == 'quick-check'
-    out = run_dir(c, a.model, quick_check=quick_check)
+    out = run_dir(c, a.model)
     out.mkdir(parents=True, exist_ok=True)
     with (out / '.release-eval.lock').open('a') as lock:
         fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
@@ -50,9 +49,9 @@ def main():
             if (out / 'samples').exists():
                 raise ValueError('Untracked existing samples; use a new output_root')
             atomic_json(receipt, identity)
-        if a.action in ('run', 'quick-check'):
-            run(c, a.model, items, out, quick_check=quick_check)
-        print(json.dumps(summarize(c, a.model, items, out, quick_check=quick_check), indent=2))
+        if a.action == 'run':
+            run(c, a.model, items, out)
+        print(json.dumps(summarize(c, a.model, items, out), indent=2))
 
 if __name__ == '__main__':
     main()

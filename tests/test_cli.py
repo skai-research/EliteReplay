@@ -81,8 +81,8 @@ def test_cli_routes_train_archive_and_evaluation(monkeypatch, tmp_path):
         "elitereplay.cli.script",
         lambda name, args: calls.append((name, list(map(str, args)))),
     )
-    main(["train", "--quick-check"])
-    assert calls[-1][0] == "training/run.py" and calls[-1][1][-1] == "quick-check"
+    main(["train"])
+    assert calls[-1][0] == "training/run.py" and calls[-1][1][-1] == "train"
     main(["archive", "import"])
     assert calls[-1][0] == "archive/import_archive.py"
     main(
@@ -96,10 +96,10 @@ def test_cli_routes_train_archive_and_evaluation(monkeypatch, tmp_path):
         ]
     )
     assert calls[-1][1][-1] == "summarize"
-    main(["evaluate", "--config", str(tmp_path / "eval.yaml"), "--quick-check"])
-    assert calls[-1][1][-1] == "quick-check"
+    main(["evaluate", "--config", str(tmp_path / "eval.yaml")])
+    assert calls[-1][1][-1] == "run"
     with pytest.raises(SystemExit):
-        main(["train", "--quick-check", "--resume"])
+        main(["train", "--prepare", "--resume"])
     with pytest.raises(SystemExit):
         main(["train", "--typo"])
 
@@ -169,3 +169,40 @@ def test_doctor_checks_configured_kernel_directory(monkeypatch, tmp_path):
         c for c in calls if any(str(x).endswith("kernels.py") for x in c)
     )
     assert kernel_call[-2:] == ["--directory", str(tmp_path / "custom-kernels")]
+
+
+@pytest.mark.parametrize("method", ["elitereplay", "grpo"])
+@pytest.mark.parametrize("ready", [True, False])
+def test_training_launch_requires_valid_inputs_but_no_prior_run(monkeypatch, tmp_path, method, ready):
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("training_runner", ROOT / "scripts/training/run.py")
+    runner = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(runner)
+    config = load(ROOT / f"configs/training/{method}.yaml")
+    config["output_root"] = str(tmp_path / "runs")
+    monkeypatch.setattr(runner, "load", lambda _: config)
+    monkeypatch.setattr(runner, "preflight", lambda *args, **kwargs: {"ready": ready})
+    launches = []
+
+    def bundle(c, original_config, *, offline=False):
+        assert not offline
+        directory = tmp_path / "bundle"
+        directory.mkdir()
+        (directory / "trinity.yaml").write_text(yaml.safe_dump(trinity_config(c)))
+        return directory
+
+    monkeypatch.setattr(runner, "bundle", bundle)
+    monkeypatch.setattr(runner, "launch", lambda *args, **kwargs: launches.append((args, kwargs)))
+    monkeypatch.setattr(sys, "argv", ["run.py", "--config", "run.yaml", "train"])
+    if ready:
+        runner.main()
+        assert len(launches) == 1
+        assert launches[0][1] == {"offline": False}
+        compiled = yaml.safe_load((tmp_path / "bundle/trinity.yaml").read_text())
+        assert compiled["trainer"]["total_steps"] == config["training"]["rollout_iterations"]
+    else:
+        with pytest.raises(SystemExit) as exc:
+            runner.main()
+        assert exc.value.code == 2
+        assert not launches and not (tmp_path / "bundle").exists()
