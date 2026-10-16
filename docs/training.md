@@ -20,7 +20,7 @@ elitereplay doctor --training
 
 The pinned Qwen3.5 kernels are installed into `external/qwen35-kernels/` with a content manifest. Build and verify them on a machine with the matching CUDA toolkit and a visible NVIDIA GPU; the installer defaults to four compilation workers. The trainer refuses the slow fallback. The `TransferQueue==0.1.7` metadata has a known NumPy<2 constraint, while this tested runtime uses NumPy 2.2.6. It is explicitly installed with `--no-deps` in the container, matching the recorded environment.
 
-Training needs four visible A100 80 GB GPUs (2 trainer + 2 rollout), approximately 32 available CPU cores for the supplied configuration, and storage for the base model, databases, rollout journals, and checkpoints. The original runs used Apptainer; native mode inside the Docker container uses the same Python launch path. The Docker build and CPU integration checks pass; a fresh GPU smoke run is still required on the deployment host. See [validation notes](validation.md).
+Training needs four visible A100 80 GB GPUs (2 trainer + 2 rollout), approximately 32 available CPU cores for the supplied configuration, and storage for the base model, databases, rollout journals, and checkpoints. The original runs used Apptainer; native mode inside the Docker container uses the same Python launch path. The Docker build and CPU integration checks pass; a fresh GPU quick check is still required on the deployment host. See [validation notes](validation.md).
 
 ## 2. Data and base model
 
@@ -70,13 +70,13 @@ The export selects 1,500 verified examples with question/mode coverage. New sear
 
 ```bash
 elitereplay train --check
-elitereplay train --smoke
+elitereplay train --quick-check
 elitereplay train
 # After interruption:
 elitereplay train --resume
 ```
 
-The two-iteration smoke run has separate state and must complete with the same configuration/source identity before production training. It does not count toward the full run. Training stops naturally at the configured `rollout_iterations`. The `elitereplay config --plan` command prints optimizer-update counts separately. Set `output_root` and `runtime.max_checkpoints_to_keep` to suit available storage before starting.
+The two-iteration quick check has separate state and must complete with the same configuration/source identity before production training. It does not count toward the full run. Training stops naturally at the configured `rollout_iterations`. The `elitereplay config --plan` command prints optimizer-update counts separately. Set `output_root` and `runtime.max_checkpoints_to_keep` to suit available storage before starting.
 
 The default recipe uses 128 questions × 8 on-policy responses, 128 replay responses, LR 1e-6, five warmup iterations, policy clipping [0.8,1.28], temperature 1, top-p .95, prompt/response limits 16,384/4,096, and response-mean replay weight .05. GRPO and EliteReplay do not add a generic base-model KL penalty. DPH-F's cached forward-KL term is separate.
 

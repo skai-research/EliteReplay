@@ -100,7 +100,7 @@ The archive builder samples SQL, mutates verified parents toward target strategi
 
 ```bash
 elitereplay train --check
-elitereplay train --smoke
+elitereplay train --quick-check
 elitereplay train
 # Resume after an interruption:
 elitereplay train --resume
@@ -109,7 +109,7 @@ elitereplay train --resume
 The default is [EliteReplay](configs/training/elitereplay.yaml). Select another method with `--config`, for example:
 
 ```bash
-elitereplay train --config configs/training/grpo.yaml --smoke
+elitereplay train --config configs/training/grpo.yaml --quick-check
 elitereplay train --config configs/training/grpo.yaml
 ```
 
@@ -130,7 +130,7 @@ Set the dataset and model paths in the [evaluation configs](configs/evaluation/)
 
 ```bash
 elitereplay evaluate --config configs/evaluation/bird.yaml --prepare
-elitereplay evaluate --config configs/evaluation/bird.yaml --model elitereplay --smoke
+elitereplay evaluate --config configs/evaluation/bird.yaml --model elitereplay --quick-check
 elitereplay evaluate --config configs/evaluation/bird.yaml --model elitereplay
 ```
 

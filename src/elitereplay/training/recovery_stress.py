@@ -1,6 +1,6 @@
 """Two-rank maximum-length update check; never writes a model checkpoint.
 
-Run with torchrun inside the pinned container before a recovered run's smoke.
+Run with torchrun inside the pinned container before a recovered run's quick check.
 Restores real optimizer/model state, performs two disposable updates, and writes
 only diagnostic JSON. The production training state remains untouched.
 """

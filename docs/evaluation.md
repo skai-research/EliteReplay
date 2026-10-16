@@ -75,9 +75,9 @@ After preparing the full benchmark and exporting a checkpoint, check generation
 and verification before starting the full evaluation:
 
 ```bash
-elitereplay evaluate --config configs/evaluation/bird.yaml --model elitereplay --smoke
+elitereplay evaluate --config configs/evaluation/bird.yaml --model elitereplay --quick-check
 ```
 
 This evaluates two questions with two samples each, writes to a separate
-`smoke/` directory, and marks the result as diagnostic. Repeating the command
+`quick-check/` directory, and marks the result as diagnostic. Repeating the command
 resumes its saved attempts. It cannot fill or overwrite the full `main/` run.

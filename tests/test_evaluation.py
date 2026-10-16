@@ -216,16 +216,16 @@ def test_async_queue_persists_later_block_before_slow_first_block(tmp_path):
         assert q.completed==2
 
 
-def test_smoke_is_separate_from_main_and_resumable(config, items):
+def test_quick_check_is_separate_from_main_and_resumable(config, items):
     from elitereplay.evaluation.config import run_dir
-    output = run_dir(config, "base", smoke=True)
+    output = run_dir(config, "base", quick_check=True)
     assert output != run_dir(config, "base")
     output.mkdir(parents=True)
     FakeGenerator.calls = []
-    first = run(config, "base", items, output, smoke=True,
+    first = run(config, "base", items, output, quick_check=True,
                 generator_factory=FakeGenerator, verifier=FakeVerifier())
-    assert first["status"] == "smoke_complete" and first["total_samples"] == 4
-    second = run(config, "base", items, output, smoke=True,
+    assert first["status"] == "quick_check_complete" and first["total_samples"] == 4
+    second = run(config, "base", items, output, quick_check=True,
                  generator_factory=FakeGenerator, verifier=FakeVerifier())
     assert second == first and len(FakeGenerator.calls) == 4
     assert not run_dir(config, "base").exists()

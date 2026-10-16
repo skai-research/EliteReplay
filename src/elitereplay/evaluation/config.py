@@ -63,11 +63,11 @@ def load(filename):
         fields["verifier"] |= {"spider_database_root", "spider_timeout_seconds"}
         if c["verifier"].get("spider_timeout_seconds", 0) <= 0:
             raise ValueError("Positive Spider timeout required")
-    if "smoke_problem_ids" in c["runtime"]:
-        fields["runtime"].add("smoke_problem_ids")
-        ids = c["runtime"]["smoke_problem_ids"]
+    if "quick_check_problem_ids" in c["runtime"]:
+        fields["runtime"].add("quick_check_problem_ids")
+        ids = c["runtime"]["quick_check_problem_ids"]
         if not isinstance(ids, list) or len(ids) != 2 or any(not isinstance(x, str) for x in ids) or len(set(ids)) != 2:
-            raise ValueError("runtime.smoke_problem_ids must contain two different official problem IDs")
+            raise ValueError("runtime.quick_check_problem_ids must contain two different official problem IDs")
     for key, keys in fields.items():
         if not isinstance(c[key], dict) or set(c[key]) != keys:
             raise ValueError(f"Invalid {key} keys: expected {sorted(keys)}")
@@ -130,8 +130,8 @@ def selected(c, name):
     return c
 
 
-def run_dir(c, name, smoke=False, *, smoke_samples=2):
-    phase = (f"smoke{smoke_samples}" if smoke_samples != 2 else "smoke") if smoke else "main"
+def run_dir(c, name, quick_check=False, *, quick_check_samples=2):
+    phase = (f"quick-check{quick_check_samples}" if quick_check_samples != 2 else "quick-check") if quick_check else "main"
     return path(c["output_root"]) / c["domain"] / c["data"]["split"] / name / phase
 
 

@@ -39,8 +39,8 @@ combination. `pip check` reports TransferQueue's NumPy<2 metadata constraint;
 that package is explicitly installed with `--no-deps`, as explained in
 [training.md](training.md). Other dependency constraints passed.
 
-A fresh four-GPU training/checkpoint/export/evaluation smoke run has **not**
-completed for this refactor. Run `elitereplay train --smoke` on the deployment
+A fresh four-GPU training/checkpoint/export/evaluation quick check has **not**
+completed for this refactor. Run `elitereplay train --quick-check` on the deployment
 GPU allocation before production training; the runner enforces completion.
 The tests above do not establish GPU memory fit or reproduce paper accuracy.
 

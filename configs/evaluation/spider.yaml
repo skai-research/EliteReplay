@@ -45,7 +45,7 @@ runtime:
   enforce_eager: false
   enable_prefix_caching: true
   overlap_verification: true
-  smoke_problem_ids:
+  quick_check_problem_ids:
   - spider:official_dev:0
   - spider:official_dev:455
 verifier:

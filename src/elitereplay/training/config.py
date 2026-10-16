@@ -298,16 +298,16 @@ def plan(c):
             "config_sha256": fingerprint(c)}
 
 
-def trinity_config(c, *, smoke=False):
+def trinity_config(c, *, quick_check=False):
     """Compile explicit user settings; historical recipes are never inherited."""
     t, r, m, model = c["training"], c["runtime"], c["method_options"], c["model"]
     data = path(c["data"]["root"])
-    directory = run_dir(c) / ("smoke" if smoke else "train")
-    prompts = r["trainer_gpus"] * 2 if smoke else t["prompts_per_iteration"]
-    update_prompts = r["trainer_gpus"] if smoke else t["prompts_per_optimizer_update"]
-    replay = (prompts if t["replay_per_iteration"] else 0) if smoke else t["replay_per_iteration"]
+    directory = run_dir(c) / ("quick-check" if quick_check else "train")
+    prompts = r["trainer_gpus"] * 2 if quick_check else t["prompts_per_iteration"]
+    update_prompts = r["trainer_gpus"] if quick_check else t["prompts_per_optimizer_update"]
+    replay = (prompts if t["replay_per_iteration"] else 0) if quick_check else t["replay_per_iteration"]
     updates = prompts // update_prompts
-    iterations = 2 if smoke else t["rollout_iterations"]
+    iterations = 2 if quick_check else t["rollout_iterations"]
     # Qwen3.5's large vocabulary makes dense logits expensive. Accumulate one
     # complete sequence per GPU; the optimizer batch and loss normalization do
     # not change. Token-budget batching exceeded 80 GB in the second GPU step.
@@ -374,7 +374,7 @@ def trinity_config(c, *, smoke=False):
         "synchronizer": {"sync_method": "nccl", "sync_style": "fixed", "sync_interval": 1,
                          "sync_timeout": batch_timeout},
         "trainer": {"trainer_strategy": "fsdp2", "total_steps": iterations,
-            "save_interval": 1 if smoke else t["save_every"], "save_hf_checkpoint": "last",
+            "save_interval": 1 if quick_check else t["save_every"], "save_hf_checkpoint": "last",
             "max_checkpoints_to_keep": r.get("max_checkpoints_to_keep", 0), "grad_clip": t["grad_clip"], "use_dynamic_bsz": micro_batch is None,
             "use_remove_padding": False, "balance_batch": False,
             "max_token_len_per_gpu": r["max_tokens_per_gpu"], "ulysses_sequence_parallel_size": 1,

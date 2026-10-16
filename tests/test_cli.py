@@ -81,8 +81,8 @@ def test_cli_routes_train_archive_and_evaluation(monkeypatch, tmp_path):
         "elitereplay.cli.script",
         lambda name, args: calls.append((name, list(map(str, args)))),
     )
-    main(["train", "--smoke"])
-    assert calls[-1][0] == "training/run.py" and calls[-1][1][-1] == "smoke"
+    main(["train", "--quick-check"])
+    assert calls[-1][0] == "training/run.py" and calls[-1][1][-1] == "quick-check"
     main(["archive", "import"])
     assert calls[-1][0] == "archive/import_archive.py"
     main(
@@ -96,10 +96,10 @@ def test_cli_routes_train_archive_and_evaluation(monkeypatch, tmp_path):
         ]
     )
     assert calls[-1][1][-1] == "summarize"
-    main(["evaluate", "--config", str(tmp_path / "eval.yaml"), "--smoke"])
-    assert calls[-1][1][-1] == "smoke"
+    main(["evaluate", "--config", str(tmp_path / "eval.yaml"), "--quick-check"])
+    assert calls[-1][1][-1] == "quick-check"
     with pytest.raises(SystemExit):
-        main(["train", "--smoke", "--resume"])
+        main(["train", "--quick-check", "--resume"])
     with pytest.raises(SystemExit):
         main(["train", "--typo"])
 

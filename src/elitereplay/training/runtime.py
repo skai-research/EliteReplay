@@ -227,17 +227,17 @@ def source_hashes(directory):
 
 
 
-def bundle(c, original_config, *, smoke=False, offline=False):
+def bundle(c, original_config, *, quick_check=False, offline=False):
     parent = run_dir(c)
     parent.mkdir(parents=True, exist_ok=True)
-    name = "prepare-bundle" if offline else "smoke-bundle" if smoke else "train-bundle"
+    name = "prepare-bundle" if offline else "quick-check-bundle" if quick_check else "train-bundle"
     target = parent / name
     expected = {"config_sha256": fingerprint(c), "input_sha256": inputs(c, require_offline=not offline)}
     if target.exists():
         manifest = json.loads((target / "manifest.json").read_text())
         if not offline and manifest.get("runtime_contract") != RUNTIME_CONTRACT:
             raise ValueError("This frozen training bundle predates the current runtime fixes. "
-                             "Without a production checkpoint, run refresh-runtime, then smoke. "
+                             "Without a production checkpoint, run refresh-runtime, then quick-check. "
                              "Production checkpoints require an explicit migration or their original runtime.")
         if any(manifest[k] != v for k, v in expected.items()):
             raise ValueError("Run bundle inputs changed; choose a new output_root")
@@ -263,7 +263,7 @@ def bundle(c, original_config, *, smoke=False, offline=False):
         shutil.copy2(kernels.LOCK, staging / "kernels.lock.json")
     shutil.copy2(original_config, staging / "experiment.original.yaml")
     (staging / "experiment.yaml").write_text(yaml.safe_dump(c, sort_keys=False))
-    (staging / "trinity.yaml").write_text(yaml.safe_dump(trinity_config(c, smoke=smoke), sort_keys=False))
+    (staging / "trinity.yaml").write_text(yaml.safe_dump(trinity_config(c, quick_check=quick_check), sort_keys=False))
     shutil.copy2(ROOT / "runtime/locks/upstream.lock.json", staging / "upstream.lock.json")
     shutil.copy2(ROOT / "runtime/locks/runtime.lock.json", staging / "runtime.lock.json")
     expected.update(runtime_contract=RUNTIME_CONTRACT, source_sha256=source_hashes(staging),
@@ -277,10 +277,10 @@ def refresh_failed_runtime(c):
     """Archive failed startup state, preserving offline data and all evidence.
 
     The caller must hold the run's exclusive .runner.lock. Preserve diagnostic
-    smoke checkpoints, but never migrate completed production checkpoints.
+    quick-check checkpoints, but never migrate completed production checkpoints.
     """
     root = run_dir(c)
-    candidates = [root / name for name in ("smoke-bundle", "train-bundle", "smoke", "train")]
+    candidates = [root / name for name in ("quick-check-bundle", "train-bundle", "quick-check", "train")]
     for directory in (root / "train-bundle", root / "train"):
         if directory.exists() and (any(directory.rglob(".full_checkpoint")) or
                                    any(directory.rglob("latest_checkpointed_iteration.txt"))):
@@ -301,7 +301,7 @@ def migrate_performance_runtime(c, *, from_contract=4):
     """Explicit 4 -> 5 or 5 -> 6 migration, under the caller's exclusive run lock.
 
     Preserve every production checkpoint and offline artifact in place. Archive
-    the old executable bundles and smoke evidence, then require a new smoke run.
+    the old executable bundles and quick-check evidence, then require a new quick check.
     Scientific config changes, different inputs and incomplete checkpoints fail
     before any rename. Never call this against a running experiment.
     """
@@ -342,7 +342,7 @@ def migrate_performance_runtime(c, *, from_contract=4):
         (saved / "migration.json").write_text(json.dumps(record, indent=2) + "\n")
     save()
     try:
-        for name in ("train-bundle", "smoke-bundle", "smoke"):
+        for name in ("train-bundle", "quick-check-bundle", "quick-check"):
             directory = root / name
             if directory.exists():
                 directory.rename(saved / name)
@@ -354,7 +354,7 @@ def migrate_performance_runtime(c, *, from_contract=4):
         record["status"] = "rolled_back"
         save()
         raise
-    record["status"] = "requires_new_smoke"
+    record["status"] = "requires_new_quick_check"
     save()
     return {**record, "record": str(saved / "migration.json")}
 
@@ -405,7 +405,7 @@ def migrate_batch_timeout(c):
         (saved / "migration.json").write_text(json.dumps(record, indent=2) + "\n")
     save()
     try:
-        for name in ("train-bundle", "smoke-bundle", "smoke", "prepare-bundle"):
+        for name in ("train-bundle", "quick-check-bundle", "quick-check", "prepare-bundle"):
             directory = root / name
             if directory.exists():
                 directory.rename(saved / name)
@@ -417,34 +417,34 @@ def migrate_batch_timeout(c):
         record["status"] = "rolled_back"
         save()
         raise
-    record["status"] = "requires_new_smoke"
+    record["status"] = "requires_new_quick_check"
     save()
     return {**record, "record": str(saved / "migration.json")}
 
 
-def require_completed_smoke(c, train_bundle):
-    """A full run must use the same tested inputs and code as its smoke run."""
+def require_completed_quick_check(c, train_bundle):
+    """A full run must use the same tested inputs and code as its quick check."""
     if c["runtime"].get("validation_only"):
         raise ValueError("Diagnostic configurations cannot start full training")
     root = run_dir(c)
-    smoke_bundle = root / "smoke-bundle"
-    cfg = trinity_config(c, smoke=True)
+    quick_check_bundle = root / "quick-check-bundle"
+    cfg = trinity_config(c, quick_check=True)
     job = Path(cfg["checkpoint_root_dir"]) / cfg["project"] / cfg["group"] / cfg["name"]
     pointer = job / "latest_checkpointed_iteration.txt"
     if (not pointer.is_file() or pointer.read_text().strip() != "2"
             or not (job / "global_step_2/.full_checkpoint").is_file()):
-        raise ValueError("Full training requires a completed two-iteration smoke run; run smoke first")
-    smoke = json.loads((smoke_bundle / "manifest.json").read_text())
+        raise ValueError("Full training requires a completed two-iteration quick check; run quick-check first")
+    quick_check = json.loads((quick_check_bundle / "manifest.json").read_text())
     train = json.loads((train_bundle / "manifest.json").read_text())
     for key in ("config_sha256", "input_sha256", "runtime_contract"):
-        if smoke.get(key) != train.get(key):
-            raise ValueError(f"Smoke/training {key} differ; run a smoke test for these exact inputs")
+        if quick_check.get(key) != train.get(key):
+            raise ValueError(f"Quick check/training {key} differ; run a quick check for these exact inputs")
     def code_hashes(manifest):
         return {k: v for k, v in manifest["source_sha256"].items()
                 if k.startswith(("src/", "Trinity-RFT/", "verl_fork/", "plugin_entry/"))
                 or k.startswith("kernel_deps/") or k.endswith(".lock.json")}
-    if code_hashes(smoke) != code_hashes(train):
-        raise ValueError("Training source differs from the completed smoke; use a new output_root and smoke again")
+    if code_hashes(quick_check) != code_hashes(train):
+        raise ValueError("Training source differs from the completed quick check; use a new output_root and run quick-check again")
     if c["domain"] == "optmath":
         for rank in range(c["runtime"]["trainer_gpus"]):
             report = json.loads((root / "allocation-validation" / f"stress-rank{rank}.json").read_text())
