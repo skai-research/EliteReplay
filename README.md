@@ -5,11 +5,11 @@
 ### Preserving Diverse Solutions in RL Post-Training via Quality-Diversity Search
 
 <a href="https://arxiv.org/abs/ARXIV_ID"><img src="https://img.shields.io/badge/Paper-arXiv-B31B1B?style=for-the-badge" alt="Paper on arXiv (coming soon)"></a>
-<a href="https://huggingface.co/HF_ORG/EliteReplay-BIRD"><img src="https://img.shields.io/badge/Weights-Hugging_Face-FFD21E?style=for-the-badge" alt="Model weights on Hugging Face (coming soon)"></a>
+<a href="https://huggingface.co/hananour/EliteReplay-BIRD-4B"><img src="https://img.shields.io/badge/Weights-Hugging_Face-FFD21E?style=for-the-badge" alt="Model weights on Hugging Face"></a>
 <a href="https://github.com/skai-research/EliteReplay"><img src="https://img.shields.io/badge/Code-GitHub-24292F?style=for-the-badge" alt="Code on GitHub"></a>
 <a href="docs/training.md"><img src="https://img.shields.io/badge/Docs-Getting_Started-2563EB?style=for-the-badge" alt="Getting started"></a>
 
-*Paper and model links are placeholders; both will be updated when available.*
+*The arXiv link will be updated when the paper is available.*
 
 </div>
 
@@ -63,6 +63,18 @@ pip install -e .
 elitereplay doctor
 elitereplay metrics examples/scored_sql.jsonl --k 1 2 4 --bootstrap 0
 ```
+
+## Released model
+
+[EliteReplay-BIRD-4B](https://huggingface.co/hananour/EliteReplay-BIRD-4B) contains the full BIRD-trained weights (μ = 0.05), tokenizer, and a runnable SQL generation example. See the model card for inference instructions, evaluation results, and checkpoint details.
+
+Download it into the directory used by the evaluation configs:
+
+```bash
+hf download hananour/EliteReplay-BIRD-4B --local-dir models/elitereplay-bird
+```
+
+The model weights use Apache 2.0, following the Qwen base model; original code in this repository uses MIT.
 
 ## Training on BIRD
 

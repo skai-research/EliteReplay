@@ -90,7 +90,7 @@ PYTHONPATH="$PWD/verl_fork:$PWD/src" elitereplay export \
   --actor /path/to/global_step_100/actor --output models/elitereplay-bird
 ```
 
-Use the actual checkpoint suffix, not a renamed counter. Export hashes source shards and records provenance. This command creates a local HF-format model; it does not upload it. No model upload is part of this code release.
+Use the actual checkpoint suffix, not a renamed counter. Export hashes source shards and records provenance. This command creates a local HF-format model; it does not upload it. The released BIRD model is available at [hananour/EliteReplay-BIRD-4B](https://huggingface.co/hananour/EliteReplay-BIRD-4B), with its selected checkpoint and weight hashes documented in the model repository.
 
 ## Python package and run names
 

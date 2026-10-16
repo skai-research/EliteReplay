@@ -24,8 +24,9 @@ run and a later fixed-batch continuation exist in the experiment records.
 
 The paper's statement of 100 steps is therefore not an exact historical run
 counter. The release does not claim that running the new 100-iteration recipe
-must yield the paper's numbers. Weights are intentionally deferred to a later
-model release, where the selected checkpoint needs its own provenance.
+must yield the paper's numbers. The released [BIRD weights](https://huggingface.co/hananour/EliteReplay-BIRD-4B)
+are this iteration-110 checkpoint. The model repository includes its weight
+hashes, source-shard hashes, and training counters.
 
 ## Archive and splits
 

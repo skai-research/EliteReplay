@@ -2,6 +2,12 @@
 
 ## Generate and verify SQL
 
+Download the released model before using the `elitereplay` entry in the evaluation configs:
+
+```bash
+hf download hananour/EliteReplay-BIRD-4B --local-dir models/elitereplay-bird
+```
+
 Use the training container or an equivalent pinned vLLM environment. Evaluation is direct sampling, without archive lookup, reranking, or deduplication. Each question receives 128 independently seeded samples at temperature 1 and top-p .95. Prompt/response limits are 16,384/4,096 tokens. Failures and truncations stay in the denominator. The default evaluator uses one GPU and 16 bounded CPU verification workers; adjust GPU memory and concurrency to the device.
 
 Acquire official BIRD dev (20240627, 1,534 questions) and Spider **1.0** dev (1,034 questions) separately. For BIRD, place the question JSON at `data/evaluation/v1/bird/official_dev.json` and databases at `external/bird-data/dev_20240627/dev_databases/<db>/<db>.sqlite`. Use the pinned evaluator fetched by `elitereplay data fetch`.
