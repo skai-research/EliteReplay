@@ -8,12 +8,8 @@ import sys
 from elitereplay.project import require_checkout
 
 
-def commands(root, *, skip_kernels=False, references=False):
+def commands(root, *, skip_kernels=False):
     commands = [[sys.executable, str(root / "scripts/setup/runtime.py"), "--install"]]
-    if references:
-        commands.append(
-            [sys.executable, str(root / "scripts/setup/upstream.py"), "--clone"]
-        )
     if not skip_kernels:
         commands.append(
             [sys.executable, str(root / "scripts/setup/kernels.py"), "--install"]
@@ -23,7 +19,7 @@ def commands(root, *, skip_kernels=False, references=False):
 
 def run(args):
     root = require_checkout()
-    plan = commands(root, skip_kernels=args.skip_kernels, references=args.references)
+    plan = commands(root, skip_kernels=args.skip_kernels)
     if not args.dry_run:
         if not shutil.which("git"):
             raise RuntimeError("Install Git before running setup.")

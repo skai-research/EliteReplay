@@ -1,5 +1,0 @@
-extends:
-- ../defaults/bird.yaml
-method: grpo
-runtime:
-  max_checkpoints_to_keep: 2

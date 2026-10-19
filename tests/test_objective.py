@@ -1,21 +1,23 @@
 import pytest
 torch = pytest.importorskip("torch")
 from types import SimpleNamespace
-from elitereplay.training.objectives import grpo, maxrl, objective
+from elitereplay.training.objectives import grpo, objective
 from elitereplay.training.batching import arrange
 from elitereplay.training.config import METHODS
 
-def test_maxrl_weights_hard_groups_more_than_grpo():
-    r = [1.] + [0.] * 7
-    assert maxrl.advantages(r)[0] > grpo.advantages(r)[0]
-    for implementation in (maxrl.advantages, grpo.advantages):
-        with pytest.raises(ValueError, match="binary"):
-            implementation([.5, 1])
+def test_grpo_binary_rewards():
+    advantages = grpo.advantages([1.] + [0.] * 7)
+    assert advantages[0] > 0 and all(a < 0 for a in advantages[1:])
+    assert abs(sum(advantages)) < 1e-6
+    for rewards in ([0.] * 8, [1.] * 8):
+        assert all(a == 0 for a in grpo.advantages(rewards))
+    with pytest.raises(ValueError, match="binary"):
+        grpo.advantages([.5, 1])
 
 
 @pytest.mark.parametrize("method", METHODS)
 def test_microbatch_and_dp_gradient_invariance(method):
-    mixed = method in ("IID_Replay", "EliteReplay", "dph_f", "dph_js")
+    mixed = True
     expert = torch.tensor([False, False, mixed, False, False, mixed])
     mask = torch.tensor([[1, 1, 0], [1, 1, 1], [1, 0, 0], [1, 1, 0], [1, 0, 0], [1, 1, 1]], dtype=torch.float64)
     old = torch.full((6, 3), -2., dtype=torch.float64)

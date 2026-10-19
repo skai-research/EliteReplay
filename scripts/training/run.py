@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run one baseline/domain using only its editable YAML hyperparameters."""
+"""Build an archive or train EliteReplay using editable YAML settings."""
 import argparse
 import fcntl
 import json
@@ -8,7 +8,7 @@ import sys
 import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
-from elitereplay.training.config import DPH_METHODS, load, plan, run_dir, offline_dir, trinity_config
+from elitereplay.training.config import load, plan, run_dir, offline_dir, trinity_config
 from elitereplay.training.runtime import (resolved, preflight, bundle, launch, reconcile,
                                     refresh_failed_runtime,
                                     migrate_performance_runtime, migrate_batch_timeout)
@@ -51,9 +51,6 @@ def main():
             print(json.dumps(migrate_batch_timeout(c), indent=2), flush=True)
             return
         offline = args.action in ("prepare", "prepare-seeds")
-        if offline and c["method"] not in ("EliteReplay", "IID_Replay", *DPH_METHODS):
-            print("No offline preparation required for this method.")
-            return
         directory = bundle(c, args.config, offline=offline)
         if args.action == "stress-runtime":
             launch(c, directory, stress=True)

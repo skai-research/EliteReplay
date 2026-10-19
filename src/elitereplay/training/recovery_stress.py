@@ -61,7 +61,7 @@ def main():
         "loss_mask": nested([[True] * response] * 2, torch.bool),
         "old_log_probs": nested([[-12.] * response] * 2, torch.float32),
         "advantages": nested([[1.] * response, [-1.] * response], torch.float32),
-        "expert_mask": torch.tensor([False, c["method"] == "dph_f"]),
+        "expert_mask": torch.tensor([False, True]),
         "online_token_count": torch.full((2,), float(response * 4)),
         "auxiliary_token_count": torch.full((2,), float(response * 2)),
         "auxiliary_response_count": torch.full((2,), 2.)}, batch_size=[2])

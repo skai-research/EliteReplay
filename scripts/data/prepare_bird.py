@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Prepare shared splits once; all baselines consume identical parquet files."""
+"""Prepare the BIRD training, archive-search, and validation splits."""
 import argparse
 import json
 import sys

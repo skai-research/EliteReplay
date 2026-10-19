@@ -2,7 +2,7 @@
 """Fetch pinned public assets. BIRD database archives are acquired separately.
 
 The default downloads only filtered questions and the evaluator. --models also
-fetches the base model (and --embedding adds SetPO's frozen embedding model).
+fetches the base model.
 No credentials are stored in the repository; use your normal HF login if needed.
 """
 import argparse
@@ -16,7 +16,6 @@ ROOT = Path(__file__).resolve().parents[2]
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument('--models', action='store_true')
-    p.add_argument('--embedding', action='store_true')
     a = p.parse_args()
     from huggingface_hub import hf_hub_download, snapshot_download
     file = hf_hub_download('birdsql/bird23-train-filtered', 'train-00000-of-00001.jsonl',
@@ -39,10 +38,9 @@ def main():
         raise ValueError('Existing BIRD evaluator differs')
     models = []
     if a.models:models.append(('Qwen/Qwen3.5-4B-Base', '1001bb4d826a52d1f399e183466143f4da7b741b'))
-    if a.embedding:models.append(('Qwen/Qwen3-Embedding-0.6B', '97b0c614be4d77ee51c0cef4e5f07c00f9eb65b3'))
     for name, rev in models:
         print(snapshot_download(name, revision=rev, cache_dir=ROOT/'external/hf-cache/hub'))
-    print('Pinned questions and evaluator ready. See docs/training.md for database placement.')
+    print('Pinned questions and evaluator ready. See README.md for database placement.')
 
 if __name__ == '__main__':
     main()

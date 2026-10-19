@@ -33,7 +33,6 @@ def test_inheritance_preserves_shared_settings_and_method_specific_options(tmp_p
     )
     assert changed["method_options"] == dict(original["method_options"], sft_weight=0.1)
     assert load(ROOT / "configs/training/elitereplay.yaml") == original
-    assert load(ROOT / "configs/training/grpo.yaml")["method_options"] == {}
     assert "taco_image" not in changed["verifier"]
     config.write_text(
         yaml.safe_dump(
@@ -113,7 +112,7 @@ def test_cli_setup_dry_run_does_not_execute(monkeypatch, capsys):
     output = capsys.readouterr().out
     assert "setup/runtime.py" in output and "setup/kernels.py" in output
     assert "upstream.py" not in output
-    assert len(commands(ROOT, skip_kernels=True, references=True)) == 2
+    assert len(commands(ROOT, skip_kernels=True)) == 1
 
 
 def test_cli_metrics_runs_on_cpu(tmp_path):
@@ -147,7 +146,7 @@ def test_doctor_checks_configured_kernel_directory(monkeypatch, tmp_path):
     from types import SimpleNamespace
     from elitereplay.cli import doctor
 
-    c = load(ROOT / "configs/training/grpo.yaml")
+    c = load(ROOT / "configs/training/elitereplay.yaml")
     c["runtime"]["kernel_directory"] = str(tmp_path / "custom-kernels")
     config = tmp_path / "config.yaml"
     config.write_text(yaml.safe_dump(c))
@@ -171,7 +170,7 @@ def test_doctor_checks_configured_kernel_directory(monkeypatch, tmp_path):
     assert kernel_call[-2:] == ["--directory", str(tmp_path / "custom-kernels")]
 
 
-@pytest.mark.parametrize("method", ["elitereplay", "grpo"])
+@pytest.mark.parametrize("method", ["elitereplay"])
 @pytest.mark.parametrize("ready", [True, False])
 def test_training_launch_requires_valid_inputs_but_no_prior_run(monkeypatch, tmp_path, method, ready):
     import importlib.util

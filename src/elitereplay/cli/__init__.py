@@ -35,11 +35,6 @@ def parser():
         help="Install framework sources only; training still needs kernels",
     )
     setup.add_argument(
-        "--references",
-        action="store_true",
-        help="Also fetch optional baseline reference repositories",
-    )
-    setup.add_argument(
         "--dry-run",
         action="store_true",
         help="Show commands without downloads or changes",
@@ -95,7 +90,7 @@ def parser():
             help={
                 "resume": "Resume a complete checkpoint",
                 "check": "Check inputs without launching training",
-                "prepare": "Prepare replay for IID/DPH baselines",
+                "prepare": "Build the EliteReplay archive",
             }[name],
         )
     evaluate = commands.add_parser(

@@ -13,7 +13,7 @@ def check_rewards(rewards: torch.Tensor) -> torch.Tensor:
     if rewards.ndim != 1 or rewards.numel() < 2:
         raise ValueError("A rollout group must contain at least two rewards")
     if not torch.isfinite(rewards).all() or not ((rewards == 0) | (rewards == 1)).all():
-        raise ValueError("All baselines require binary, finite correctness rewards")
+        raise ValueError("GRPO requires binary, finite correctness rewards")
     return rewards
 
 

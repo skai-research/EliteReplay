@@ -11,7 +11,7 @@ import time
 from pathlib import Path
 
 import yaml
-from .config import DPH_METHODS, ROOT, REPLAY_METHODS, path, run_dir, offline_dir, fingerprint, offline_fingerprint, trinity_config
+from .config import ROOT, REPLAY_METHODS, path, run_dir, offline_dir, fingerprint, offline_fingerprint, trinity_config
 from .data import sha256, validate_splits
 
 TRINITY_COMMIT = "9a7e26e7d71b843d19e70344a2fe3b47efe2f418"
@@ -22,7 +22,6 @@ RUNTIME_CONTRACT = 6
 def resolved(c):
     c = copy.deepcopy(c)
     for section, keys in {"model": ["path"], "data": ["root"], "runtime": ["image"],
-                          "method_options": ["embedding_model"],
                           "verifier": ["bird_database_root", "bird_evaluator_root", "taco_image", "apptainer_image", "gurobipy_path", "highspy_path"]}.items():
         for key in keys:
             if key in c[section]:
@@ -32,18 +31,9 @@ def resolved(c):
         c["offline"]["source_dir"] = str(path(c["offline"]["source_dir"]))
     if "seed_source_config" in c["offline"]:
         c["offline"]["seed_source_config"] = str(path(c["offline"]["seed_source_config"]))
-    if "iid_taxonomy_path" in c["offline"]:
-        c["offline"]["iid_taxonomy_path"] = str(path(c["offline"]["iid_taxonomy_path"]))
     if "kernel_directory" in c["runtime"]:
         c["runtime"]["kernel_directory"] = str(path(c["runtime"]["kernel_directory"]))
     return c
-
-
-def upstream_check():
-    spec = importlib.util.spec_from_file_location("baseline_upstream_check", ROOT / "scripts/setup/upstream.py")
-    helper = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(helper)
-    return helper.check()
 
 
 def runtime_check():
@@ -94,9 +84,6 @@ def inputs(c, *, require_offline=True):
     if "seed_source_config" in c["offline"]:
         source = path(c["offline"]["seed_source_config"])
         files[str(source)] = sha256(source)
-    if "iid_taxonomy_path" in c["offline"]:
-        taxonomy = path(c["offline"]["iid_taxonomy_path"])
-        files[str(taxonomy)] = sha256(taxonomy)
     splits = {}
     for name in ("train", "aux_search", "validation"):
         source = data / f"{name}.parquet"
@@ -127,32 +114,27 @@ def inputs(c, *, require_offline=True):
         for split, key in (("train", "train_sha256"), ("aux_search", "aux_sha256")):
             if complete[key] != files[str(data / f"{split}.parquet")]:
                 raise ValueError("Offline artifacts belong to different training splits")
-        filenames = {"references.jsonl": "references_sha256", "exploration.parquet": "exploration_sha256"} if c["method"] in DPH_METHODS else {"archive.jsonl": "archive_sha256"}
+        filenames = {"archive.jsonl": "archive_sha256"}
         for name, key in filenames.items():
             actual = sha256(root / name)
             if actual != complete[key]:
                 raise ValueError(f"Offline file hash mismatch: {name}")
             files[str(root / name)] = actual
-        replay_path = root / ("references.jsonl" if c["method"] in DPH_METHODS else "archive.jsonl")
+        replay_path = root / "archive.jsonl"
         rows = [json.loads(line) for line in replay_path.read_text().splitlines() if line.strip()]
         if any(r.get("metadata", {}).get("validation_only") for r in rows) and not c["runtime"].get("validation_only"):
             raise ValueError("Diagnostic replay rows cannot be used for full training")
-        kind = {"EliteReplay": "qd", "IID_Replay": "iid", "dph_js": "dph_js", "dph_f": "dph_f"}[c["method"]]
+        kind = "qd"
         replay = Replay(rows, method=kind, seed=c["seed"],
                         sampling=c["method_options"].get("replay_sampling", "question_random"))
-        allowed = set(ids["train"] if c["method"] in DPH_METHODS else ids["aux_search"])
+        allowed = set(ids["aux_search"])
         if not set(replay.ids) <= allowed:
             raise ValueError("Replay contains a question outside its authorized training pool")
         if c["domain"] == "optmath" and c["method"] == "EliteReplay":
             effective_path = validate_optmath_archive(c, root, complete, len(rows))
             files[str(effective_path)] = sha256(effective_path)
-        elif c["method"] not in DPH_METHODS and len(rows) != c["offline"]["export_target"]:
+        elif len(rows) != c["offline"]["export_target"]:
             raise ValueError("Archive has not reached the matched export target")
-        if c["method"] in DPH_METHODS:
-            exploration = pq.read_table(root / "exploration.parquet").to_pylist()
-            exp_ids = {r["extra_info"]["problem_id"] for r in exploration}
-            if exp_ids & set(replay.ids) or exp_ids | set(replay.ids) != allowed:
-                raise ValueError("Invalid DPH exploration/preservation partition")
         files[str(root / "complete.json")] = sha256(root / "complete.json")
     return files
 
@@ -175,8 +157,6 @@ def preflight(c, *, require_offline=True):
             adapter(c).preflight()
         except (ValueError, OSError, RuntimeError) as error:
             errors.append(f"OptMATH verifier: {error}")
-    if c["method"] == "setpo":
-        required.append(path(c["method_options"]["embedding_model"]) / "config.json")
     for item in required:
         if not item.exists():
             errors.append(f"Missing {item}")
@@ -208,23 +188,9 @@ def preflight(c, *, require_offline=True):
     return {"ready": not errors, "errors": errors, "input_sha256": files}
 
 
-
-
-
-
-
-
-
-
 def source_hashes(directory):
     return {str(f.relative_to(directory)): sha256(f) for f in sorted(directory.rglob("*"))
             if f.is_file() and "__pycache__" not in f.parts and f.suffix != ".pyc"}
-
-
-
-
-
-
 
 
 def bundle(c, original_config, *, offline=False):
@@ -264,7 +230,6 @@ def bundle(c, original_config, *, offline=False):
     shutil.copy2(original_config, staging / "experiment.original.yaml")
     (staging / "experiment.yaml").write_text(yaml.safe_dump(c, sort_keys=False))
     (staging / "trinity.yaml").write_text(yaml.safe_dump(trinity_config(c), sort_keys=False))
-    shutil.copy2(ROOT / "runtime/locks/upstream.lock.json", staging / "upstream.lock.json")
     shutil.copy2(ROOT / "runtime/locks/runtime.lock.json", staging / "runtime.lock.json")
     expected.update(runtime_contract=RUNTIME_CONTRACT, source_sha256=source_hashes(staging),
                     runtime_base_commits={"trinity": TRINITY_COMMIT, "verl": VERL_COMMIT})
@@ -449,7 +414,7 @@ def reconcile(c, trinity):
         replay_hash = None
         if c["method"] in REPLAY_METHODS:
             from .replay import Replay
-            kind = {"EliteReplay": "qd", "IID_Replay": "iid", "dph_js": "dph_js", "dph_f": "dph_f"}[c["method"]]
+            kind = "qd"
             source = trinity["algorithm"]["sample_strategy_args"]["replay_path"]
             rows = [json.loads(line) for line in Path(source).read_text().splitlines() if line.strip()]
             replay_hash = Replay(rows, method=kind, seed=c["seed"]).fingerprint
@@ -501,8 +466,6 @@ def launch(c, directory, *, offline=False, seeds_only=False, stress=False):
         env["APPTAINERENV_SSL_CERT_FILE"] = "/etc/ssl/certs/ca-certificates.crt"
         binds = ["--bind", f"{ROOT}:{ROOT}:rw"]
         extra_paths = [(ROOT / "external").resolve(), Path(c["output_root"]), path(c["model"]["path"]), path(c["data"]["root"]) ]
-        if c["method"] == "setpo":
-            extra_paths.append(path(c["method_options"]["embedding_model"]))
         extra_paths += [path(c["verifier"][k]) for k in
                         ("bird_database_root", "bird_evaluator_root", "taco_image", "apptainer_image", "gurobipy_path")
                         if k in c["verifier"]]
@@ -510,7 +473,7 @@ def launch(c, directory, *, offline=False, seeds_only=False, stress=False):
             extra_paths.append(path(c["verifier"]["highspy_path"]))
         # Offline descriptors may live beside the campaign, outside both the
         # source snapshot and the checkpoint output root (e.g. scratch recovery).
-        for key in ("iid_taxonomy_path", "source_dir"):
+        for key in ("source_dir",):
             if c["offline"].get(key):
                 extra_paths.append(path(c["offline"][key]))
         for source in extra_paths:

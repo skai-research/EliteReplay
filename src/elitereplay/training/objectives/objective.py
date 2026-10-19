@@ -2,13 +2,15 @@
 from __future__ import annotations
 
 import torch
-from . import grpo, dph_f, dph_js
+from . import grpo
 
 
 def loss(logprob, old_logprob, action_mask, advantages, expert_mask,
          online_token_count, auxiliary_token_count, *, method, dp_size=1,
-         sft_weight=0.05, js_weight=0.2, forward_weight=0.01, clip_low=0.2, clip_high=0.28,
+         sft_weight=0.05, clip_low=0.2, clip_high=0.28,
          sft_reduction="token_mean", auxiliary_response_count=None):
+    if method != "EliteReplay":
+        raise ValueError("Only the EliteReplay objective is supported")
     expert = expert_mask.bool().reshape(-1)
     online = ~expert
     # A microbatch can contain only one source; retain a differentiable zero.
@@ -19,15 +21,8 @@ def loss(logprob, old_logprob, action_mask, advantages, expert_mask,
                                 clip_low, clip_high)
         rl = (terms * action_mask[online]).sum() / online_token_count.reshape(-1)[0]
     if expert.any():
-        if method == "dph_f":
-            terms = dph_f.token_loss(logprob[expert], old_logprob[expert])
-        elif method == "dph_js":
-            terms = dph_js.token_loss(logprob[expert], old_logprob[expert])
-        elif method in ("IID_Replay", "EliteReplay"):
-            terms = -logprob[expert]
-        else:
-            raise ValueError(f"Unexpected replay in {method}")
-        if method in ("IID_Replay", "EliteReplay") and sft_reduction == "response_mean":
+        terms = -logprob[expert]
+        if sft_reduction == "response_mean":
             if auxiliary_response_count is None:
                 raise ValueError("Response-mean SFT requires the global auxiliary response count")
             lengths = action_mask[expert].sum(-1)
@@ -38,8 +33,8 @@ def loss(logprob, old_logprob, action_mask, advantages, expert_mask,
             if sft_reduction not in ("token_mean", "response_mean"):
                 raise ValueError("Unknown SFT reduction")
             aux = (terms * action_mask[expert]).sum() / auxiliary_token_count.reshape(-1)[0]
-    rl_weight = 1 - sft_weight if method in ("IID_Replay", "EliteReplay") else 1
-    aux_weight = forward_weight if method == "dph_f" else js_weight if method == "dph_js" else sft_weight
+    rl_weight = 1 - sft_weight
+    aux_weight = sft_weight
     # FSDP averages rank gradients; microbatch gradients are summed by VERL.
     total = dp_size * (rl_weight * rl + aux_weight * aux)
     return total, {"baseline/rl_loss_contribution": float(rl.detach()),

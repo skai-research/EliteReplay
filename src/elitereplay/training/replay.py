@@ -1,4 +1,4 @@
-"""Identical question-balanced replay for QD and independent-sampling archives."""
+"""Question-balanced replay from verified archive cells."""
 from __future__ import annotations
 
 import hashlib

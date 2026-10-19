@@ -1,1 +1,1 @@
-"""Reproducible external policy-optimization baselines."""
+"""EliteReplay policy optimization and supervised replay."""

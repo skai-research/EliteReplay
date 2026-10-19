@@ -1,5 +1,0 @@
-extends:
-- ../defaults/bird.yaml
-method: maxrl
-runtime:
-  max_checkpoints_to_keep: 2

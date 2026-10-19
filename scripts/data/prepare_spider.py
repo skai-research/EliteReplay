@@ -11,7 +11,7 @@ import hashlib
 import json
 from pathlib import Path
 import sqlite3
-import subprocess
+from urllib.request import urlopen
 import time
 import zipfile
 
@@ -75,10 +75,14 @@ def main():
     ROOT=a.root.resolve(); OUT=ROOT/'data/evaluation/spider-dev-dph-v1'; DATABASES=ROOT/'external/spider-data/spider-1.0-dev/database'
     a.archive=(a.archive or ROOT/'external/spider-data/downloads/spider_data.zip').resolve()
     if sha(a.archive)!=ZIP_SHA:raise ValueError('Official archive digest differs from audited release')
-    repo=a.dph_source.resolve() if a.dph_source else ROOT/'external/DPH-RL'
+    repo=a.dph_source.resolve() if a.dph_source else ROOT/'external/spider-source'
     if a.dph_source is None:
-        commit=subprocess.check_output(['git','-C',str(repo),'rev-parse','HEAD'],text=True).strip()
-        if commit!=DPH_COMMIT:raise ValueError('Unexpected DPH checkout')
+        for name in ('data/sql/spider_dev.jsonl', 'README.md', 'LICENSE'):
+            destination=repo/name
+            if not destination.exists():
+                url=f'https://raw.githubusercontent.com/seamoke/DPH-RL/{DPH_COMMIT}/{name}'
+                with urlopen(url, timeout=60) as response:
+                    write_exact(destination,response.read())
     dph=repo/'data/sql/spider_dev.jsonl'
     if sha(dph)!=DPH_SHA:raise ValueError('DPH JSONL differs from pinned release')
     rows=[json.loads(l) for l in dph.read_text().splitlines()]

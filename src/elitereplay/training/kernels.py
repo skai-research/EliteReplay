@@ -26,7 +26,7 @@ def check(root):
     manifest = root / "manifest.json"
     if not manifest.is_file():
         raise ValueError("Missing pinned Qwen3.5 kernels. Run scripts/setup/kernels.py --install "
-                         "inside the training container; see docs/training.md")
+                         "inside the training container; see README.md")
     record = json.loads(manifest.read_text())
     if record["lock_sha256"] != sha256(LOCK):
         raise ValueError("Kernel installation does not match kernels.lock.json")
