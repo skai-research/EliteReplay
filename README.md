@@ -52,6 +52,14 @@ elitereplay train --config configs/training/elitereplay.yaml
 
 ## Evaluation and metrics
 
+Compute **U@k, effective diversity, strategy retention, and pass@k** from verified SQL samples. Provide a JSONL file with `model`, `question_id`, `sample_id`, `correct`, and `sql` fields ([example](examples/scored_sql.jsonl)). Include the base model for retention, use the same questions and sample counts for each model, and keep failed attempts.
+
+```bash
+elitereplay metrics samples.jsonl --base-model base \
+  --k 1 2 4 8 16 32 64 128 --output metrics.json
+```
+
+Set `--base-model` to your base model's name in the input and choose `k` values no larger than your samples per question. Run `elitereplay metrics --help` for descriptor and bootstrap options. Metrics run on CPU.
 
 ## Citation
 
