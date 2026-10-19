@@ -52,14 +52,12 @@ elitereplay train --config configs/training/elitereplay.yaml
 
 ## Evaluation and metrics
 
-Compute **U@k, effective diversity, strategy retention, and pass@k** from verified outputs in any domain. Provide a JSONL file with `model`, `question_id`, `sample_id`, `correct`, and `strategy` fields ([example](examples/scored_samples.jsonl)). Use your domain's verifier for correctness and a consistent strategy taxonomy across models. Keep failed attempts; their strategy can be `null`.
+Compute **U@k, effective diversity, strategy retention, and pass@k**. 
 
 ```bash
 elitereplay metrics samples.jsonl --descriptor precomputed --base-model base \
   --k 1 2 4 8 16 32 64 128 --output metrics.json
 ```
-
-Include the base model for retention, with the same tasks and sample counts for each model. Choose `k` values no larger than your samples per task. This mode measures diversity by distinct strategy labels. Metrics run on CPU; use `elitereplay metrics --help` for options.
 
 ## Citation
 
