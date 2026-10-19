@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Paper metrics from scored BIRD/Spider samples in a simple JSONL interchange."""
+"""Diversity metrics from verified samples and domain-specific strategy descriptors."""
 from __future__ import annotations
 
 import argparse
@@ -14,7 +14,7 @@ from elitereplay.evaluation.descriptors.sql_strategy import strategy_key, simila
 from elitereplay.evaluation.descriptors.sql_ast_modes import bound_alias_ast_key
 from elitereplay.evaluation.descriptors.structural_descriptor_v2 import describe
 
-DESCRIPTORS = ("coarsened_v2", "bound_alias_ast", "height4_dice")
+DESCRIPTORS = ("coarsened_v2", "bound_alias_ast", "height4_dice", "precomputed")
 
 @lru_cache(maxsize=65536)
 def descriptor_key(sql, descriptor):
@@ -50,12 +50,18 @@ def no_hit(n: int, count: int, k: int) -> float:
     return value
 
 
+def sample_descriptor(row, descriptor):
+    if descriptor == "precomputed":
+        return row["strategy"]
+    return descriptor_key(row["sql"], descriptor)
+
+
 def score_question(rows: list[dict], ks: list[int], descriptor="height4_dice", effective_descriptor=None) -> dict:
     n = len(rows)
     if n < 2:
         raise ValueError("Effective diversity requires at least two samples")
-    good = [r["sql"] for r in rows if r["correct"]]
-    counts = Counter(descriptor_key(sql, descriptor) for sql in good)
+    good = [r for r in rows if r["correct"]]
+    counts = Counter(sample_descriptor(row, descriptor) for row in good)
     result = {"n": n, "correct": len(good), "strategies": set(counts)}
     for k in ks:
         if k > n:
@@ -64,13 +70,13 @@ def score_question(rows: list[dict], ks: list[int], descriptor="height4_dice", e
         result[f"pass@{k}"] = 1.0 - no_hit(n, len(good), k)
     effective_descriptor = effective_descriptor or descriptor
     if effective_descriptor == "height4_dice":
-        sql_counts = Counter(good)
+        sql_counts = Counter(row["sql"] for row in good)
         distinct_sql = list(sql_counts)
         dissimilarity = sum(sql_counts[a] * sql_counts[b] * (1.0 - pair_similarity(*sorted((a, b))))
                             for i, a in enumerate(distinct_sql) for b in distinct_sql[i + 1:])
         result["effective_diversity"] = 2.0 * dissimilarity / (n * (n - 1))
     else:
-        ed_counts = Counter(descriptor_key(sql, effective_descriptor) for sql in good)
+        ed_counts = Counter(sample_descriptor(row, effective_descriptor) for row in good)
         c = len(good)
         result["effective_diversity"] = (c * (c - 1) - sum(v * (v - 1) for v in ed_counts.values())) / (n * (n - 1))
     return result
@@ -83,20 +89,26 @@ def evaluate(rows, ks: list[int], base_model: str, descriptor="height4_dice", ef
         raise ValueError("Unknown descriptor")
     if bootstrap < 0:
         raise ValueError("bootstrap must be nonnegative")
+    needs_sql = any(d != "precomputed" for d in (descriptor, effective_descriptor or descriptor))
+    needs_strategy = "precomputed" in (descriptor, effective_descriptor or descriptor)
     groups = defaultdict(list)
     datasets = set()
     seen = set()
     for row in rows:
-        for field in ("model", "question_id", "sample_id", "correct", "sql"):
+        for field in ("model", "question_id", "sample_id", "correct"):
             if field not in row:
                 raise ValueError(f"Missing field {field}")
         datasets.add(row.get("dataset", "unspecified"))
         if len(datasets) > 1:
             raise ValueError("Evaluate one dataset at a time")
-        if not isinstance(row["sql"], str):
+        if needs_sql and not isinstance(row.get("sql"), str):
             raise ValueError("sql must be a string, including failed attempts")
         if type(row["correct"]) is not bool:
             raise ValueError("correct must be a Boolean")
+        if needs_strategy and row["correct"]:
+            label = row.get("strategy")
+            if not isinstance(label, str) or not label.strip():
+                raise ValueError("Correct samples require a nonempty strategy string in precomputed mode")
         key = (str(row["model"]), str(row["question_id"]), str(row["sample_id"]))
         if key in seen:
             raise ValueError(f"Duplicate sample {key}")
@@ -128,7 +140,7 @@ def evaluate(rows, ks: list[int], base_model: str, descriptor="height4_dice", ef
     if bootstrap:
         import numpy as np
         rng = np.random.default_rng(seed)
-        # Same resampled questions for every method; do not resample individual SQLs.
+        # Same resampled questions for every method; do not resample individual samples.
         for metric in [*(f"u@{k}" for k in ks), *(f"pass@{k}" for k in ks), "effective_diversity", "retention"]:
             qs = eligible if metric == "retention" else questions
             if not qs:
@@ -147,12 +159,12 @@ def evaluate(rows, ks: list[int], base_model: str, descriptor="height4_dice", ef
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("samples", type=Path, help="JSONL: model, question_id, sample_id, correct, sql")
+    parser.add_argument("samples", type=Path, help="JSONL: model, question_id, sample_id, correct, plus strategy (precomputed) or sql")
     parser.add_argument("--base-model", default="base")
     parser.add_argument("--k", type=int, nargs="+", default=[1, 2, 4, 8, 16, 32, 64, 128])
     parser.add_argument("--output", type=Path)
-    parser.add_argument("--descriptor", choices=DESCRIPTORS, default="coarsened_v2", help="U@k and retention identity")
-    parser.add_argument("--effective-descriptor", choices=DESCRIPTORS, default="bound_alias_ast", help="Effective-diversity identity/similarity")
+    parser.add_argument("--descriptor", choices=DESCRIPTORS, default="coarsened_v2", help="U@k and retention identity; precomputed uses supplied strategy labels for any domain")
+    parser.add_argument("--effective-descriptor", choices=DESCRIPTORS, default=None, help="Effective-diversity identity/similarity (default: precomputed with precomputed labels, otherwise bound_alias_ast)")
     parser.add_argument("--bootstrap", type=int, default=4000)
     parser.add_argument("--seed", type=int, default=20261001)
     args = parser.parse_args()
@@ -161,11 +173,15 @@ def main() -> None:
     rows = [json.loads(line) for line in args.samples.read_text().splitlines() if line.strip()]
     if not rows:
         parser.error("Input is empty")
-    result = evaluate(rows, args.k, args.base_model, args.descriptor, args.effective_descriptor, args.bootstrap, args.seed)
+    effective_descriptor = args.effective_descriptor or (
+        "precomputed" if args.descriptor == "precomputed" else "bound_alias_ast"
+    )
+    result = evaluate(rows, args.k, args.base_model, args.descriptor, effective_descriptor, args.bootstrap, args.seed)
     import hashlib
     import importlib.metadata
     result["input_sha256"] = hashlib.sha256(args.samples.read_bytes()).hexdigest()
-    result["sqlglot_version"] = importlib.metadata.version("sqlglot")
+    if args.descriptor != "precomputed" or effective_descriptor != "precomputed":
+        result["sqlglot_version"] = importlib.metadata.version("sqlglot")
     text = json.dumps(result, indent=2, sort_keys=True) + "\n"
     if args.output:
         args.output.write_text(text)

@@ -1,0 +1,8 @@
+{"model": "base", "question_id": "task_1", "sample_id": 0, "correct": true, "strategy": "direct"}
+{"model": "base", "question_id": "task_1", "sample_id": 1, "correct": true, "strategy": "direct"}
+{"model": "base", "question_id": "task_1", "sample_id": 2, "correct": true, "strategy": "decomposition"}
+{"model": "base", "question_id": "task_1", "sample_id": 3, "correct": false, "strategy": null}
+{"model": "elitereplay", "question_id": "task_1", "sample_id": 0, "correct": true, "strategy": "direct"}
+{"model": "elitereplay", "question_id": "task_1", "sample_id": 1, "correct": true, "strategy": "decomposition"}
+{"model": "elitereplay", "question_id": "task_1", "sample_id": 2, "correct": true, "strategy": "decomposition"}
+{"model": "elitereplay", "question_id": "task_1", "sample_id": 3, "correct": false, "strategy": null}
