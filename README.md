@@ -4,20 +4,11 @@
 
 ### Preserving Diverse Solutions in RL Post-Training via Quality-Diversity Search
 
-<a href="https://arxiv.org/abs/ARXIV_ID"><img src="https://img.shields.io/badge/Paper-arXiv-B31B1B?style=for-the-badge" alt="Paper on arXiv (coming soon)"></a>
-<a href="https://huggingface.co/hananour/EliteReplay-BIRD-4B"><img src="https://img.shields.io/badge/Weights-Hugging_Face-FFD21E?style=for-the-badge" alt="Model weights on Hugging Face"></a>
-<a href="https://github.com/skai-research/EliteReplay"><img src="https://img.shields.io/badge/Code-GitHub-24292F?style=for-the-badge" alt="Code on GitHub"></a>
-<a href="docs/training.md"><img src="https://img.shields.io/badge/Docs-Getting_Started-2563EB?style=for-the-badge" alt="Getting started"></a>
-
-*The arXiv link will be updated when the paper is available.*
+<a href="https://arxiv.org/abs/2610.22290"><img src="https://img.shields.io/badge/Paper-arXiv-B31B1B?style=for-the-badge" alt="Paper"></a>
+<a href="https://huggingface.co/hananour/EliteReplay-BIRD-4B"><img src="https://img.shields.io/badge/Weights-Hugging_Face-FFD21E?style=for-the-badge" alt="Weights"></a>
+<a href="https://github.com/skai-research/EliteReplay"><img src="https://img.shields.io/badge/Code-GitHub-24292F?style=for-the-badge" alt="Code"></a>
 
 </div>
-
-Official implementation and artifacts for **EliteReplay**.
-
-EliteReplay preserves diverse solutions during reinforcement learning by combining GRPO with supervised replay from a quality-diversity archive. A frozen base model builds the archive through strategy-guided search, and execution verification keeps correct SQL solutions for replay.
-
-This project provides the archive builder, the released BIRD archive, EliteReplay and baseline training, BIRD/Spider evaluation, and tools for measuring solution diversity.
 
 ## What's included
 
